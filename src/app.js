@@ -26,7 +26,30 @@ const EXTRA_WORDS_LIMIT = 10;
  * @returns {string} - The text without accents
  */
 function normalizeText(text) {
-    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    // First convert to lowercase for case-insensitive matching
+    let normalized = text.toLowerCase();
+
+    // Map special characters before normalization
+    const specialChars = {
+        'ß': 'ss',    // German eszett
+        'æ': 'ae',    // ae ligature
+        'œ': 'oe',    // oe ligature
+        'ø': 'o',     // Danish/Norwegian o with stroke
+        'ñ': 'n',     // Spanish n with tilde
+        'ç': 'c'      // c cedilla
+    };
+
+    // Replace special characters
+    for (const [char, replacement] of Object.entries(specialChars)) {
+        normalized = normalized.replace(new RegExp(char, 'g'), replacement);
+    }
+
+    // Normalize unicode characters and remove diacritics
+    normalized = normalized
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+    return normalized;
 }
 
 /**
@@ -40,14 +63,17 @@ function buildProfanityRegex(profanityList) {
     if (!profanityList || profanityList.length === 0) {
         return null;
     }
-    // Escape regex special characters in the words and normalize accents
-    const escapedWords = profanityList.map(p =>
-        normalizeText(p).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    );
-    // Create the regex with \b to ensure only whole words are captured
-    // and ignore case differences
-    const pattern = `\\b(${escapedWords.join('|')})\\b`;
-    return new RegExp(pattern, 'gi'); // 'g' for global, 'i' for case-insensitive
+    // Escape regex special characters in the words and normalize them
+    const escapedWords = profanityList.map(word => {
+        // Normalize the word and escape regex special characters
+        const normalized = normalizeText(word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Create alternations for accented characters
+        return normalized;
+    });
+    
+    // Create the regex pattern with word boundaries
+    const pattern = `\\b(?:${escapedWords.join('|')})\\b`;
+    return new RegExp(pattern, 'giu'); // 'g' for global, 'i' for case-insensitive, 'u' for unicode
 }
 
 // Function to dynamically load the language file for the requested language
@@ -80,51 +106,45 @@ function processText(text, profanityList, fill_char, fill_word) {
     }
 
     let filteredText = text;
-    const foundWords = [];
+    const foundWords = new Set();
     const normalizedText = normalizeText(text);
 
-    // Substitution considering fill_word or fill_char
-    filteredText = normalizedText.replace(currentRegex, (match, ...args) => {
-        const offset = args[args.length - 2];
-        const originalWord = text.slice(offset, offset + match.length);
-        const lowerMatch = originalWord.toLowerCase();
-        if (!foundWords.includes(lowerMatch)) {
-            foundWords.push(lowerMatch);
-        }
-        if (fill_word) {
-            return `${fill_word}`;
-        } else {
-            return fill_char.repeat(originalWord.length);
-        }
-    });
+    // First find all matches in the normalized text
+    const matches = [];
+    let match;
+    while ((match = currentRegex.exec(normalizedText)) !== null) {
+        const normalizedWord = match[0];
+        const startPos = match.index;
+        const endPos = startPos + normalizedWord.length;
+        
+        // Get the original word from the input text
+        const originalWord = text.slice(startPos, endPos);
+        
+        matches.push({
+            original: originalWord,
+            normalized: normalizedWord,
+            start: startPos,
+            end: endPos
+        });
+        
+        foundWords.add(normalizedWord);
+    }
 
-    // If fill_word was used, we need to reconstruct the original text with the replacements
-    if (fill_word) {
-        let finalText = '';
-        let idx = 0;
-        while (idx < text.length) {
-            let found = false;
-            for (const word of profanityList) {
-                const wordNorm = normalizeText(word);
-                if (normalizeText(text.substr(idx, word.length)).toLowerCase() === wordNorm.toLowerCase()) {
-                    finalText += `${fill_word}`;
-                    idx += word.length;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                finalText += text[idx];
-                idx++;
-            }
-        }
-        filteredText = finalText;
+    // Sort matches by position in reverse order to replace from end to start
+    matches.sort((a, b) => b.start - a.start);
+
+    // Replace each match in the original text
+    for (const match of matches) {
+        const before = filteredText.slice(0, match.start);
+        const after = filteredText.slice(match.end);
+        const replacement = fill_word || fill_char.repeat(match.original.length);
+        filteredText = before + replacement + after;
     }
 
     return {
         filtered_text: filteredText,
-        isFiltered: foundWords.length > 0,
-        words_found: foundWords
+        isFiltered: foundWords.size > 0,
+        words_found: Array.from(foundWords)
     };
 }
 
@@ -162,9 +182,10 @@ function filterHandler(req, res) {
     const { texts, language, fill_char, fill_word, extras } = extractParams(req);
     const requestedLanguage = typeof language === 'string' ? language.toLowerCase() : DEFAULT_LANGUAGE;
     const languageFile = loadLanguageFile(requestedLanguage);
+    const defaultLangFile = loadLanguageFile(DEFAULT_LANGUAGE);
     const languageAvailable = !!languageFile;
     const selectedLanguage = languageAvailable ? requestedLanguage : DEFAULT_LANGUAGE;
-    const selectedLangFile = languageFile || loadLanguageFile(DEFAULT_LANGUAGE);
+    const selectedLangFile = languageFile || defaultLangFile;
     const messages = selectedLangFile.messages;
 
     // Validate input
@@ -177,8 +198,14 @@ function filterHandler(req, res) {
         warning = messages.warning(requestedLanguage, DEFAULT_LANGUAGE);
     }
 
-    // Get profanity list
-    let currentProfanityList = languageFile?.profanityList || [];
+    // Get profanity list from selected language and default language if needed
+    let currentProfanityList = [];
+    if (languageAvailable) {
+        currentProfanityList = languageFile.profanityList || [];
+    } else {
+        currentProfanityList = defaultLangFile.profanityList || [];
+    }
+
     if (extras && extras.length > 0) {
         currentProfanityList = [...new Set([...currentProfanityList, ...extras.map(p => p.toLowerCase())])];
     }
