@@ -85,7 +85,7 @@ describe('API Filtro de Palavras', () => {
       .get('/filter')
       .query({ lang: 'pt-br', fill_char: '*' });
     expect(res.status).toBe(400);
-    expect(res.body.erro).toBeDefined();
+    expect(res.body.error).toBeDefined();
   });
 
   test('Retorna erro se text não for string', async () => {
@@ -93,6 +93,6 @@ describe('API Filtro de Palavras', () => {
       .post('/filter')
       .send({ text: 123, lang: 'pt-br', fill_char: '*' });
     expect(res.status).toBe(400);
-    expect(res.body.erro).toBeDefined();
+    expect(res.body.error).toBeDefined();
   });
 });
