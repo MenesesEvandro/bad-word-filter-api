@@ -1,7 +1,7 @@
 {
   "name": "@menesesevandro/bad-word-filter-api",
   "description": "A simple API service for filtering and removing content of profanity, obscenity and other unwanted text",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "app.js",
   "scripts": {
     "start": "node src/app.js",
