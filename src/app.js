@@ -12,7 +12,7 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 // Default language if none is specified or the specified one is not supported
-const DEFAULT_LANGUAGE = "pt-br";
+const DEFAULT_LANGUAGE = "en-us";
 
 // Character for profanity replacement
 const REPLACEMENT_CHAR = '*';
@@ -50,20 +50,12 @@ function buildProfanityRegex(profanityList) {
     return new RegExp(pattern, 'gi'); // 'g' for global, 'i' for case-insensitive
 }
 
-// Function to dynamically load the profanity list for the requested language
-function loadProfanityList(language) {
+// Function to dynamically load the language file for the requested language
+function loadLanguageFile(language) {
     try {
-        // Mapping between language and file
-        const files = {
-            'pt-br': './lang/pt-br.js',
-            'en-us': './lang/en-us.js',
-            'es-es': './lang/es-es.js',
-            'fr-fr': './lang/fr-fr.js',
-            'de-de': './lang/de-de.js'
-        };
-        const file = files[language];
-        if (!file) return null;
-        return require(file);
+        // Only require the selected language file
+        const langFile = `./lang/${language}.js`;
+        return require(langFile);
     } catch (e) {
         return null;
     }
@@ -92,43 +84,60 @@ function extractParams(req) {
 // Shared handler for GET and POST
 function filterHandler(req, res) {
     const { text, language, fill_char, fill_word, extras } = extractParams(req);
+    const requestedLanguage = typeof language === 'string' ? language.toLowerCase() : DEFAULT_LANGUAGE;
+    const languageFile = loadLanguageFile(requestedLanguage);
+    const languageAvailable = !!languageFile;
+    const selectedLanguage = languageAvailable ? requestedLanguage : DEFAULT_LANGUAGE;
+    const selectedLangFile = languageFile || loadLanguageFile(DEFAULT_LANGUAGE);
+    const messages = selectedLangFile.messages;
+
     if (typeof text === 'undefined') {
-        return res.status(400).json({ error: "Parameter or field 'text' is required." });
+        return res.status(400).json({ error: messages.required });
     }
     if (typeof text !== 'string') {
-        return res.status(400).json({ error: "The value of 'text' must be a string." });
+        return res.status(400).json({ error: messages.string });
     }
-    const selectedLanguage = (typeof language === 'string' && loadProfanityList(language.toLowerCase()))
-        ? language.toLowerCase()
-        : DEFAULT_LANGUAGE;
-    let currentProfanityList = loadProfanityList(selectedLanguage) || [];
+    
+    let warning = undefined;
+    if (!languageAvailable && requestedLanguage !== DEFAULT_LANGUAGE) {
+        warning = messages.warning(requestedLanguage, DEFAULT_LANGUAGE);
+    }
+    
+    let currentProfanityList = languageFile?.profanityList || [];
     // Add extras, avoiding duplicates
     if (extras && extras.length > 0) {
         currentProfanityList = [...new Set([...currentProfanityList, ...extras.map(p => p.toLowerCase())])];
     }
+    
     if (!currentProfanityList || currentProfanityList.length === 0) {
-        return res.status(200).json({
+        const response = {
             original_text: text,
             filtered_text: text,
             isFiltered: false,
             words_found: [],
             lang: selectedLanguage
-        });
+        };
+        if (warning) response.warning = warning;
+        return res.status(200).json(response);
     }
+    
     const currentRegex = buildProfanityRegex(currentProfanityList);
     if (!currentRegex) {
-        return res.status(200).json({
+        const response = {
             original_text: text,
             filtered_text: text,
             isFiltered: false,
             words_found: [],
             lang: selectedLanguage
-        });
+        };
+        if (warning) response.warning = warning;
+        return res.status(200).json(response);
     }
+    
     let filteredText = text;
     const foundWords = [];
     const normalizedText = normalizeText(text);
-    filteredText = text;
+    
     // Substitution considering fill_word or fill_char
     filteredText = normalizedText.replace(currentRegex, (match, ...args) => {
         const offset = args[args.length - 2];
@@ -143,6 +152,7 @@ function filterHandler(req, res) {
             return fill_char.repeat(originalWord.length);
         }
     });
+    
     // If fill_word was used, we need to reconstruct the original text with the replacements
     if (fill_word) {
         // Reconstruct the original text replacing profanities with [fill_word]
@@ -166,8 +176,9 @@ function filterHandler(req, res) {
         }
         filteredText = finalText;
     }
+    
     const hasProfanity = foundWords.length > 0;
-    res.status(200).json({
+    const response = {
         original_text: text,
         filtered_text: filteredText,
         isFiltered: hasProfanity,
@@ -176,17 +187,30 @@ function filterHandler(req, res) {
         fill_char: fill_char,
         fill_word: fill_word,
         extra_words: extras
-    });
+    };
+    if (warning) response.warning = warning;
+    res.status(200).json(response);
 }
 
 // API endpoint to filter profanities (GET and POST)
 app.get('/filter', filterHandler);
 app.post('/filter', filterHandler);
 
+// Function to get languages list with native names
+function getSupportedLanguages() {
+    return [
+        { code: 'pt-br', name: 'Português (Brasil)' },
+        { code: 'en-us', name: 'English (USA)' },
+        { code: 'es-es', name: 'Español (España)' },
+        { code: 'fr-fr', name: 'Français (France)' },
+        { code: 'de-de', name: 'Deutsch (Deutschland)' }
+    ];
+}
+
 // Route to list supported languages
 app.get('/languages', (req, res) => {
     res.status(200).json({
-        suported_lang: ['pt-br', 'en-us', 'es-es', 'fr-fr', 'de-de'],
+        languages: getSupportedLanguages(),
         default_lang: DEFAULT_LANGUAGE
     });
 });

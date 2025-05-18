@@ -1,0 +1,35 @@
+module.exports = {
+    profanityList: [
+        "merde", "merdes", "merdeux", "merdeuse",
+        "putain", "putains", "pute", "putes",
+        "con", "conne", "cons", "connes", "connard", "connards", "connasse", "connasses",
+        "salope", "salopes", "salopard", "salopards",
+        "encule", "encules", "enculer", "enculee",
+        "bite", "bites", "queue", "queues",
+        "couille", "couilles", "couillon", "couillons",
+        "branler", "branleur", "branleurs", "branleuse", "branleuses",
+        "chier", "chieur", "chieurs", "chieuse", "chieuses",
+        "foutre", "foutres", "foutoir", "foutage",
+        "niquer", "nique", "niques", "niquer",
+        "bordel", "bordels",
+        "cul", "culs", "trou du cul", "trou de cul",
+        "merdique", "merdiques",
+        "cretin", "cretins", "cretine", "cretines",
+        "debile", "debiles",
+        "batard", "batards", "batarde", "batardes",
+        "fils de pute", "fille de pute",
+        "pd", "pede", "pedes",
+        "tapette", "tapettes",
+        "gouine", "gouines",
+        "salaud", "salauds", "saloperie", "saloperies",
+        "emmerde", "emmerdes", "emmerdeur", "emmerdeurs",
+        "merdier", "merdiers",
+        "chiant", "chiante", "chiants", "chiantes",
+        "casse couilles", "casse burnes"
+    ],
+    messages: {
+        required: "Le paramètre ou le champ 'text' est requis.",
+        string: "La valeur de 'text' doit être une chaîne de caractères.",
+        warning: (reqLang, defLang) => `La langue demandée '${reqLang}' n'est pas disponible. La langue par défaut '${defLang}' a été utilisée.`
+    }
+};

@@ -4,10 +4,32 @@
   "version": "1.0.2",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node src/app.js",
     "test": "jest"
   },
-  "keywords": ["filter", "bad words", "profanity", "obscenity", "text", "api"],
+  "keywords": [
+    "filter",
+    "bad words",
+    "words",
+    "badwords",
+    "bad-words",
+    "bad",
+    "profanity",
+    "profane",
+    "obscenity",
+    "text",
+    "curse",
+    "cursing",
+    "curses",
+    "curse words",
+    "curseword",
+    "curse-words",
+    "swear",
+    "swearing",
+    "swear words",
+    "swearword",
+    "swear-words"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/MenesesEvandro/bad-word-filter-api.git"
