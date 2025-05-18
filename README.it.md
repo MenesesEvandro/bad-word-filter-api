@@ -38,7 +38,7 @@ L'API sarà disponibile su `http://localhost:3000`.
 
 #### Parametri
 - `text` (stringa o array di stringhe, obbligatorio): testo/i da filtrare
-- `lang` (stringa, opzionale): lingua (es. pt-br, en, es, fr, de, it). Predefinito: pt-br
+- `lang` (stringa, opzionale): lingua (es. pt-br, en, es, fr, de, it). Predefinito: en
 - `fill_char` (stringa, opzionale): carattere per sostituire ogni lettera della parolaccia. Predefinito: `*`
 - `fill_word` (stringa, opzionale): parola fissa per sostituire la parolaccia (es. "nascosto"). Se fornito, ha la precedenza su `fill_char`.
 - `extras` (stringa o array, opzionale): fino a 10 parole extra da filtrare, separate da virgola o array

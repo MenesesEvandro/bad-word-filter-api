@@ -42,7 +42,7 @@ La API estará disponible en `http://localhost:3000`.
 
 #### Parámetros
 - `text` (string o array de strings, obligatorio): texto(s) a filtrar
-- `lang` (string, opcional): idioma (ej: pt-br, en, es, fr, de, it). Por defecto: pt-br
+- `lang` (string, opcional): idioma (ej: pt-br, en, es, fr, de, it). Por defecto: en
 - `fill_char` (string, opcional): carácter para reemplazar cada letra de la palabrota. Por defecto: `*`
 - `fill_word` (string, opcional): palabra fija para reemplazar la palabrota (ej: "oculto"). Si se proporciona, tiene prioridad sobre `fill_char`.
 - `extras` (string o array, opcional): hasta 10 palabras extra para filtrar, separadas por comas o array

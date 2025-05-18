@@ -40,7 +40,7 @@ The API will be available at `http://localhost:3000`.
 
 #### Parameters
 - `text` (string or string array, required): text(s) to be filtered
-- `lang` (string, optional): language (e.g., pt-br, en, es, fr, de, it). Default: pt-br
+- `lang` (string, optional): language (e.g., pt-br, en, es, fr, de, it). Default: en
 - `fill_char` (string, optional): character to replace each letter of the profanity. Default: `*`
 - `fill_word` (string, optional): fixed word to replace the profanity (e.g., "hidden"). If provided, takes precedence over `fill_char`.
 - `extras` (string or array, optional): up to 10 extra words to filter, comma-separated or array

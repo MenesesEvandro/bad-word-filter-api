@@ -42,7 +42,7 @@ L'API sera disponible sur `http://localhost:3000`.
 
 #### Paramètres
 - `text` (string ou tableau de strings, obligatoire): texte(s) à filtrer
-- `lang` (string, optionnel): langue (ex: pt-br, en, es, fr, de, it). Par défaut: pt-br
+- `lang` (string, optionnel): langue (ex: pt-br, en, es, fr, de, it). Par défaut: en
 - `fill_char` (string, optionnel): caractère pour remplacer chaque lettre du gros mot. Par défaut: `*`
 - `fill_word` (string, optionnel): mot fixe pour remplacer le gros mot (ex: "caché"). Si fourni, prend la priorité sur `fill_char`.
 - `extras` (string ou tableau, optionnel): jusqu'à 10 mots supplémentaires à filtrer, séparés par des virgules ou tableau

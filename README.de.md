@@ -42,7 +42,7 @@ Die API ist dann unter `http://localhost:3000` erreichbar.
 
 #### Parameter
 - `text` (String oder String-Array, erforderlich): zu filternde(r) Text(e)
-- `lang` (String, optional): Sprache (z.B. pt-br, en, es, fr, de). Standard: pt-br
+- `lang` (String, optional): Sprache (z.B. pt-br, en, es, fr, de). Standard: en
 - `fill_char` (String, optional): Zeichen zum Ersetzen jedes Buchstabens des Schimpfworts. Standard: `*`
 - `fill_word` (String, optional): Festes Wort zum Ersetzen des Schimpfworts (z.B. "versteckt"). Wenn angegeben, hat es Vorrang vor `fill_char`.
 - `extras` (String oder Array, optional): bis zu 10 zusätzliche Wörter zum Filtern, durch Kommas getrennt oder Array
