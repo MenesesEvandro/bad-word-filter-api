@@ -260,7 +260,8 @@ function getSupportedLanguages() {
         { code: 'en-us', name: 'English (USA)' },
         { code: 'es-es', name: 'Español (España)' },
         { code: 'fr-fr', name: 'Français (France)' },
-        { code: 'de-de', name: 'Deutsch (Deutschland)' }
+        { code: 'de-de', name: 'Deutsch (Deutschland)' },
+        { code: 'it-it', name: 'Italiano (Italia)' }
     ];
 }
 

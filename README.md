@@ -1,8 +1,10 @@
-# Bad Word Filter API
+# [🇧🇷 Português](README.pt.md) | [🇺🇸 English](README.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md) | [🇮🇹 Italiano](README.it.md)
+
+Bad Word Filter is a simple, multilang and free web service for filtering and removing profanity, obscenity, and other unwanted text. Word Filter API
 
 [🇧🇷 Português](README.pt.md) | [🇺🇸 English](README.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
 
-Bad Word Filter is a simple multilang and free web service for filtering and removing profanity, obscenity, and other unwanted text.
+Bad Word Filter is a simple multi-language and free web service for filtering and removing profanity, obscenity, and other unwanted text.
 
 ## Installation via npm
 
@@ -24,7 +26,7 @@ npm start
 The API will be available at `http://localhost:3000`.
 
 ## Features
-- Multi-language support: pt-br, en-us, es-es, fr-fr, de-de
+- Multi-language support: pt-br, en-us, es-es, fr-fr, de-de, it-it, it-it
 - Replace bad words with a customizable character or fixed word
 - Supports GET and POST
 - Add extra words to filter
@@ -38,7 +40,7 @@ The API will be available at `http://localhost:3000`.
 
 #### Parameters
 - `text` (string or string array, required): text(s) to be filtered
-- `lang` (string, optional): language (e.g., pt-br, en-us, es-es, fr-fr, de-de). Default: pt-br
+- `lang` (string, optional): language (e.g., pt-br, en-us, es-es, fr-fr, de-de, it-it). Default: pt-br
 - `fill_char` (string, optional): character to replace each letter of the profanity. Default: `*`
 - `fill_word` (string, optional): fixed word to replace the profanity (e.g., "hidden"). If provided, takes precedence over `fill_char`.
 - `extras` (string or array, optional): up to 10 extra words to filter, comma-separated or array

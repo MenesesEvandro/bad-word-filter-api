@@ -1,4 +1,4 @@
-# [🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
+# [🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md) | [🇮🇹 Italiano](README.it.md)
 
 Bad Word Filter es un servicio web simple, multilingüe y gratuito para filtrar y eliminar palabrotas, obscenidades y otros textos no deseados.
 
@@ -28,7 +28,7 @@ npm start
 La API estará disponible en `http://localhost:3000`.
 
 ## Funcionalidades
-- Soporte para múltiples idiomas: pt-br, en-us, es-es, fr-fr, de-de
+- Soporte para múltiples idiomas: pt-br, en-us, es-es, fr-fr, de-de, it-it
 - Sustitución de palabrotas por carácter personalizable o palabra fija
 - Soporta GET y POST
 - Añade palabras extra para filtrar
@@ -42,7 +42,7 @@ La API estará disponible en `http://localhost:3000`.
 
 #### Parámetros
 - `text` (string o array de strings, obligatorio): texto(s) a filtrar
-- `lang` (string, opcional): idioma (ej: pt-br, en-us, es-es, fr-fr, de-de). Por defecto: pt-br
+- `lang` (string, opcional): idioma (ej: pt-br, en-us, es-es, fr-fr, de-de, it-it). Por defecto: pt-br
 - `fill_char` (string, opcional): carácter para reemplazar cada letra de la palabrota. Por defecto: `*`
 - `fill_word` (string, opcional): palabra fija para reemplazar la palabrota (ej: "oculto"). Si se proporciona, tiene prioridad sobre `fill_char`.
 - `extras` (string o array, opcional): hasta 10 palabras extra para filtrar, separadas por comas o array

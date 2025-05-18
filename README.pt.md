@@ -1,6 +1,6 @@
 # Bad Word Filter API
 
-[🇧🇷 Português](README.pt.md) | [🇺🇸 English](README.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
+[🇧🇷 Português](README.pt.md) | [🇺🇸 English](README.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md) | [🇮🇹 Italiano](README.it.md)
 
 
 Bad Word Filter é um serviço web simples, multilíngue e gratuito para filtrar e remover palavrões, obscenidades e outros textos indesejados.
@@ -25,7 +25,7 @@ npm start
 A API estará disponível em `http://localhost:3000`.
 
 ## Funcionalidades
-- Suporte a múltiplos idiomas: pt-br, en-us, es-es, fr-fr, de-de
+- Suporte a múltiplos idiomas: pt-br, en-us, es-es, fr-fr, de-de, it-it
 - Substituição de palavrões por caractere customizável ou palavra fixa
 - Suporte a GET e POST
 - Adição de palavras extras para filtro
@@ -39,7 +39,7 @@ A API estará disponível em `http://localhost:3000`.
 
 #### Parâmetros
 - `text` (string ou array de strings, obrigatório): texto(s) a ser(em) filtrado(s)
-- `lang` (string, opcional): idioma (ex: pt-br, en-us, es-es, fr-fr, de-de). Padrão: pt-br
+- `lang` (string, opcional): idioma (ex: pt-br, en-us, es-es, fr-fr, de-de, it-it). Padrão: pt-br
 - `fill_char` (string, opcional): caractere para substituir cada letra do palavrão. Padrão: `*`
 - `fill_word` (string, opcional): palavra fixa para substituir o palavrão (ex: "oculto"). Se informado, tem prioridade sobre `fill_char`.
 - `extras` (string ou array, opcional): até 10 palavras extras para filtrar, separadas por vírgula ou array

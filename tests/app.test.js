@@ -79,6 +79,16 @@ describe('Bad Word Filter API', () => {
     expect(res.body.results.filtered_text).toBe('das ist *******');
   });
 
+  test('Filters in Italian', async () => {
+    const res = await request(app)
+      .get('/filter')
+      .query({ text: 'questo è merda', lang: 'it-it', fill_char: '*' });
+    expect(res.status).toBe(200);
+    expect(res.body.results.isFiltered).toBe(true);
+    expect(res.body.results.words_found).toContain('merda');
+    expect(res.body.results.filtered_text).toBe('questo è *****');
+  });
+
   test('Replaces profanity with character (GET)', async () => {
     const res = await request(app)
       .get('/filter')
@@ -149,6 +159,16 @@ describe('Bad Word Filter API', () => {
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.filtered_text).toBe('das ist *******');
+  });
+
+  test('Filters in Italian', async () => {
+    const res = await request(app)
+      .get('/filter')
+      .query({ text: 'questo è merda', lang: 'it-it', fill_char: '*' });
+    expect(res.status).toBe(200);
+    expect(res.body.results.isFiltered).toBe(true);
+    expect(res.body.results.words_found).toContain('merda');
+    expect(res.body.results.filtered_text).toBe('questo è *****');
   });
 
   test('Returns error if text is not provided', async () => {
@@ -273,13 +293,14 @@ describe('Bad Word Filter API', () => {
     const res = await request(app)
       .get('/languages');
     expect(res.status).toBe(200);
-    expect(res.body.languages).toHaveLength(5);
+    expect(res.body.languages).toHaveLength(6);
     expect(res.body.default_lang).toBe('en-us');
     expect(res.body.languages[0].code).toBe('pt-br');
     expect(res.body.languages[1].code).toBe('en-us');
     expect(res.body.languages[2].code).toBe('es-es');
     expect(res.body.languages[3].code).toBe('fr-fr');
     expect(res.body.languages[4].code).toBe('de-de');
+    expect(res.body.languages[5].code).toBe('it-it');
   });
 
   test('Handles mixed case profanity correctly', async () => {

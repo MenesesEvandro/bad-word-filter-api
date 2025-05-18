@@ -1,4 +1,4 @@
-# [🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
+# [🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md) | [🇮🇹 Italiano](README.it.md)
 
 Bad Word Filter est un service web simple, multilingue et gratuit pour filtrer et supprimer les grossièretés, obscénités et autres textes indésirables.
 
@@ -28,7 +28,7 @@ npm start
 L'API sera disponible sur `http://localhost:3000`.
 
 ## Fonctionnalités
-- Prise en charge de plusieurs langues : pt-br, en-us, es-es, fr-fr, de-de
+- Prise en charge de plusieurs langues : pt-br, en-us, es-es, fr-fr, de-de, it-it
 - Remplacement des grossièretés par un caractère personnalisable ou un mot fixe
 - Prend en charge GET et POST
 - Ajout de mots supplémentaires à filtrer
@@ -42,7 +42,7 @@ L'API sera disponible sur `http://localhost:3000`.
 
 #### Paramètres
 - `text` (string ou tableau de strings, obligatoire): texte(s) à filtrer
-- `lang` (string, optionnel): langue (ex: pt-br, en-us, es-es, fr-fr, de-de). Par défaut: pt-br
+- `lang` (string, optionnel): langue (ex: pt-br, en-us, es-es, fr-fr, de-de, it-it). Par défaut: pt-br
 - `fill_char` (string, optionnel): caractère pour remplacer chaque lettre du gros mot. Par défaut: `*`
 - `fill_word` (string, optionnel): mot fixe pour remplacer le gros mot (ex: "caché"). Si fourni, prend la priorité sur `fill_char`.
 - `extras` (string ou tableau, optionnel): jusqu'à 10 mots supplémentaires à filtrer, séparés par des virgules ou tableau

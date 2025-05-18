@@ -1,4 +1,4 @@
-# [🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
+# [🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md) | [🇮🇹 Italiano](README.it.md)
 
 Bad Word Filter ist ein einfacher, mehrsprachiger und kostenloser Webdienst zum Filtern und Entfernen von Schimpfwörtern, Obszönitäten und anderen unerwünschten Texten.
 
@@ -28,7 +28,7 @@ npm start
 Die API ist dann unter `http://localhost:3000` erreichbar.
 
 ## Funktionen
-- Unterstützung für mehrere Sprachen: pt-br, en-us, es-es, fr-fr, de-de
+- Unterstützung für mehrere Sprachen: pt-br, en-us, es-es, fr-fr, de-de, it-it
 - Ersetzen von Schimpfwörtern durch ein anpassbares Zeichen oder ein festes Wort
 - Unterstützt GET und POST
 - Hinzufügen von zusätzlichen Wörtern zum Filtern
@@ -42,7 +42,7 @@ Die API ist dann unter `http://localhost:3000` erreichbar.
 
 #### Parameter
 - `text` (String oder String-Array, erforderlich): zu filternde(r) Text(e)
-- `lang` (String, optional): Sprache (z.B. pt-br, en-us, es-es, fr-fr, de-de). Standard: pt-br
+- `lang` (String, optional): Sprache (z.B. pt-br, en-us, es-es, fr-fr, de-de, it-it). Standard: pt-br
 - `fill_char` (String, optional): Zeichen zum Ersetzen jedes Buchstabens des Schimpfworts. Standard: `*`
 - `fill_word` (String, optional): Festes Wort zum Ersetzen des Schimpfworts (z.B. "versteckt"). Wenn angegeben, hat es Vorrang vor `fill_char`.
 - `extras` (String oder Array, optional): bis zu 10 zusätzliche Wörter zum Filtern, durch Kommas getrennt oder Array
