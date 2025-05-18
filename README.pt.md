@@ -1,7 +1,6 @@
-# Bad Word Filter API
-
 [🇧🇷 Português](README.pt.md) | [🇺🇸 English](README.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md) | [🇮🇹 Italiano](README.it.md)
 
+# Bad Word Filter API
 
 Bad Word Filter é um serviço web simples, multilíngue e gratuito para filtrar e remover palavrões, obscenidades e outros textos indesejados.
 
