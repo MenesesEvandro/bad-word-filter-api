@@ -1,7 +1,8 @@
-// Import Express framework
+// Import required modules
 const express = require('express');
-// Import middleware to parse JSON
 const bodyParser = require('body-parser');
+const fs = require('fs');
+const path = require('path');
 
 // Create the Express application
 const app = express();
@@ -255,14 +256,31 @@ app.post('/filter', filterHandler);
 
 // Function to get languages list with native names
 function getSupportedLanguages() {
-    return [
-        { code: 'pt-br', name: 'Português (Brasil)' },
-        { code: 'en-us', name: 'English (USA)' },
-        { code: 'es-es', name: 'Español (España)' },
-        { code: 'fr-fr', name: 'Français (France)' },
-        { code: 'de-de', name: 'Deutsch (Deutschland)' },
-        { code: 'it-it', name: 'Italiano (Italia)' }
-    ];
+    const langDir = path.join(__dirname, 'lang');
+    const files = fs.readdirSync(langDir);
+    
+    // Filter for .js files and extract language codes
+    const languages = files
+        .filter(file => file.endsWith('.js'))
+        .map(file => {
+            const code = path.basename(file, '.js');
+            try {
+                // Import the language file
+                const langModule = require(path.join(langDir, file));
+                // Get the native name from the module if available, or generate a default one
+                return {
+                    code,
+                    name: langModule.name || code.toUpperCase()
+                };
+            } catch (error) {
+                console.warn(`Failed to load language file: ${file}`);
+                return null;
+            }
+        })
+        .filter(lang => lang !== null) // Remove any failed imports
+        .sort((a, b) => a.code.localeCompare(b.code)); // Sort by language code
+
+    return languages;
 }
 
 // Route to list supported languages

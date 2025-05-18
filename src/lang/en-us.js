@@ -1,4 +1,5 @@
 module.exports = {
+    name: 'English (USA)',
     profanityList: [
         "arse",
         "arsehole",

@@ -1,4 +1,5 @@
 module.exports = {
+    name: 'Français (France)',
     profanityList: [
         "merde", "merdes", "merdeux", "merdeuse",
         "putain", "putains", "pute", "putes",

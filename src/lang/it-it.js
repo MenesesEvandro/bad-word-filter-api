@@ -1,4 +1,5 @@
 module.exports = {
+    name: 'Italiano (Italia)',
     profanityList: [
         "affanculo", "affanculare",
         "bagascia", "baldracca",
@@ -23,7 +24,7 @@ module.exports = {
         "zoccola", "zoccole"
     ],
     messages: {
-        required: "Il parametro 'text' è obbligatorio.",
+        required: "Il parametro o campo 'text' è obbligatorio.",
         string: "Il valore di 'text' deve essere una stringa.",
         warning: (reqLang, defLang) => `La lingua richiesta '${reqLang}' non è disponibile. È stata utilizzata la lingua predefinita '${defLang}'.`
     }

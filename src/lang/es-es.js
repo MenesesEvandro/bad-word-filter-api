@@ -1,4 +1,5 @@
 module.exports = {
+    name: 'Español (España)',
     profanityList: [
         "cabron", "cabrona", "cabrones", "cabronas",
         "puta", "putas", "putita", "putitas", "putona", "putonas",

@@ -1,4 +1,5 @@
 module.exports = {
+    name: 'Deutsch (Deutschland)',
     profanityList: [
         "arsch", "arschloch", "arschlocher",
         "schlampe", "schlampen",

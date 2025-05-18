@@ -1,4 +1,5 @@
 module.exports = {
+    name: 'Português (Brasil)',
     profanityList: [
         "arrombado", "arrombada", "arrombados", "arrombadas",
         "babaca", "babacas", "baitola", "biscate",
@@ -12,7 +13,7 @@ module.exports = {
         "corno", "corna", "cornão", "cornuda",
         "cuzão", "cuzudo", "cuzuda", "cu",
         "desgraçado", "desgraçada", "desgraça",
-        "fdp", "filhodaputa", "filhodaputagem",
+        "fdp", "filhodaputa", "filho da puta", "filhodaputagem",
         "foder", "fodido", "fodida", "foda-se", "fodase",
         "galinha", "galinhas",
         "imbecil", "imbecis",
