@@ -4,6 +4,8 @@
 
 Bad Word Filter è un servizio web semplice, multilingue e gratuito per filtrare e rimuovere parolacce, oscenità e altri testi indesiderati.
 
+![NPM Version](https://img.shields.io/npm/v/%40menesesevandro%2Fbad-word-filter-api) ![NPM Unpacked Size](https://img.shields.io/npm/unpacked-size/%40menesesevandro%2Fbad-word-filter-api) ![Crates.io License](https://img.shields.io/crates/l/mit) ![GitHub last commit](https://img.shields.io/github/last-commit/menesesevandro/bad-word-filter-api)
+
 ## Installazione tramite npm
 
 Questo pacchetto è disponibile su npm:
