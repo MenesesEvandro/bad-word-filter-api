@@ -61,83 +61,28 @@ function loadLanguageFile(language) {
     }
 }
 
-// Utility function to get text, language, replacement character, and extra words from the request
-function extractParams(req) {
-    // Support for GET (query) and POST (body)
-    const isGet = req.method === 'GET';
-    const text = isGet ? req.query.text : req.body.text;
-    const language = (isGet ? req.query.lang : req.body.lang) || DEFAULT_LANGUAGE;
-    const fill_char = (isGet ? req.query.fill_char : req.body.fill_char) || REPLACEMENT_CHAR;
-    const fill_word = (isGet ? req.query.fill_word : req.body.fill_word) || null;
-    let extras = isGet ? req.query.extras : req.body.extras;
-    // Allow extras as comma-separated string or array
-    if (typeof extras === 'string') {
-        extras = extras.split(',').map(p => p.trim()).filter(Boolean);
-    } else if (!Array.isArray(extras)) {
-        extras = [];
-    }
-    // Limit to 10 words
-    extras = extras.slice(0, EXTRA_WORDS_LIMIT);
-    return { text, language, fill_char, fill_word, extras };
-}
-
-// Shared handler for GET and POST
-function filterHandler(req, res) {
-    const { text, language, fill_char, fill_word, extras } = extractParams(req);
-    const requestedLanguage = typeof language === 'string' ? language.toLowerCase() : DEFAULT_LANGUAGE;
-    const languageFile = loadLanguageFile(requestedLanguage);
-    const languageAvailable = !!languageFile;
-    const selectedLanguage = languageAvailable ? requestedLanguage : DEFAULT_LANGUAGE;
-    const selectedLangFile = languageFile || loadLanguageFile(DEFAULT_LANGUAGE);
-    const messages = selectedLangFile.messages;
-
-    if (typeof text === 'undefined') {
-        return res.status(400).json({ error: messages.required });
-    }
-    if (typeof text !== 'string') {
-        return res.status(400).json({ error: messages.string });
-    }
-    
-    let warning = undefined;
-    if (!languageAvailable && requestedLanguage !== DEFAULT_LANGUAGE) {
-        warning = messages.warning(requestedLanguage, DEFAULT_LANGUAGE);
-    }
-    
-    let currentProfanityList = languageFile?.profanityList || [];
-    // Add extras, avoiding duplicates
-    if (extras && extras.length > 0) {
-        currentProfanityList = [...new Set([...currentProfanityList, ...extras.map(p => p.toLowerCase())])];
-    }
-    
-    if (!currentProfanityList || currentProfanityList.length === 0) {
-        const response = {
-            original_text: text,
-            filtered_text: text,
-            isFiltered: false,
-            words_found: [],
-            lang: selectedLanguage
-        };
-        if (warning) response.warning = warning;
-        return res.status(200).json(response);
-    }
-    
-    const currentRegex = buildProfanityRegex(currentProfanityList);
+/**
+ * Process a single text string for profanity filtering
+ * @param {string} text - Text to be filtered
+ * @param {string[]} profanityList - List of words to filter
+ * @param {string} fill_char - Character to use for replacement
+ * @param {string|null} fill_word - Word to use for replacement
+ * @returns {Object} Filtered text result
+ */
+function processText(text, profanityList, fill_char, fill_word) {
+    const currentRegex = buildProfanityRegex(profanityList);
     if (!currentRegex) {
-        const response = {
-            original_text: text,
+        return {
             filtered_text: text,
             isFiltered: false,
-            words_found: [],
-            lang: selectedLanguage
+            words_found: []
         };
-        if (warning) response.warning = warning;
-        return res.status(200).json(response);
     }
-    
+
     let filteredText = text;
     const foundWords = [];
     const normalizedText = normalizeText(text);
-    
+
     // Substitution considering fill_word or fill_char
     filteredText = normalizedText.replace(currentRegex, (match, ...args) => {
         const offset = args[args.length - 2];
@@ -152,15 +97,14 @@ function filterHandler(req, res) {
             return fill_char.repeat(originalWord.length);
         }
     });
-    
+
     // If fill_word was used, we need to reconstruct the original text with the replacements
     if (fill_word) {
-        // Reconstruct the original text replacing profanities with [fill_word]
         let finalText = '';
         let idx = 0;
         while (idx < text.length) {
             let found = false;
-            for (const word of currentProfanityList) {
+            for (const word of profanityList) {
                 const wordNorm = normalizeText(word);
                 if (normalizeText(text.substr(idx, word.length)).toLowerCase() === wordNorm.toLowerCase()) {
                     finalText += `${fill_word}`;
@@ -176,19 +120,105 @@ function filterHandler(req, res) {
         }
         filteredText = finalText;
     }
-    
-    const hasProfanity = foundWords.length > 0;
-    const response = {
-        original_text: text,
+
+    return {
         filtered_text: filteredText,
-        isFiltered: hasProfanity,
-        words_found: foundWords,
+        isFiltered: foundWords.length > 0,
+        words_found: foundWords
+    };
+}
+
+// Utility function to get text, language, replacement character, and extra words from the request
+function extractParams(req) {
+    // Support for GET (query) and POST (body)
+    const isGet = req.method === 'GET';
+    const rawText = isGet ? req.query.text : req.body.text;
+    
+    // Handle text as string or array of strings
+    let texts = [];
+    if (Array.isArray(rawText)) {
+        texts = rawText.filter(t => typeof t === 'string');
+    } else if (typeof rawText === 'string') {
+        texts = [rawText];
+    }
+    
+    const language = (isGet ? req.query.lang : req.body.lang) || DEFAULT_LANGUAGE;
+    const fill_char = (isGet ? req.query.fill_char : req.body.fill_char) || REPLACEMENT_CHAR;
+    const fill_word = (isGet ? req.query.fill_word : req.body.fill_word) || null;
+    let extras = isGet ? req.query.extras : req.body.extras;
+    
+    if (typeof extras === 'string') {
+        extras = extras.split(',').map(p => p.trim()).filter(Boolean);
+    } else if (!Array.isArray(extras)) {
+        extras = [];
+    }
+    extras = extras.slice(0, EXTRA_WORDS_LIMIT);
+    
+    return { texts, language, fill_char, fill_word, extras };
+}
+
+// Shared handler for GET and POST
+function filterHandler(req, res) {
+    const { texts, language, fill_char, fill_word, extras } = extractParams(req);
+    const requestedLanguage = typeof language === 'string' ? language.toLowerCase() : DEFAULT_LANGUAGE;
+    const languageFile = loadLanguageFile(requestedLanguage);
+    const languageAvailable = !!languageFile;
+    const selectedLanguage = languageAvailable ? requestedLanguage : DEFAULT_LANGUAGE;
+    const selectedLangFile = languageFile || loadLanguageFile(DEFAULT_LANGUAGE);
+    const messages = selectedLangFile.messages;
+
+    // Validate input
+    if (!texts || texts.length === 0) {
+        return res.status(400).json({ error: messages.required });
+    }
+
+    let warning = undefined;
+    if (!languageAvailable && requestedLanguage !== DEFAULT_LANGUAGE) {
+        warning = messages.warning(requestedLanguage, DEFAULT_LANGUAGE);
+    }
+
+    // Get profanity list
+    let currentProfanityList = languageFile?.profanityList || [];
+    if (extras && extras.length > 0) {
+        currentProfanityList = [...new Set([...currentProfanityList, ...extras.map(p => p.toLowerCase())])];
+    }
+
+    if (!currentProfanityList || currentProfanityList.length === 0) {
+        const emptyResult = texts.map(text => ({
+            original_text: text,
+            filtered_text: text,
+            isFiltered: false,
+            words_found: []
+        }));
+        const response = {
+            results: texts.length === 1 ? emptyResult[0] : emptyResult,
+            lang: selectedLanguage
+        };
+        if (warning) response.warning = warning;
+        return res.status(200).json(response);
+    }
+
+    // Process each text
+    const results = texts.map(text => {
+        const processed = processText(text, currentProfanityList, fill_char, fill_word);
+        return {
+            original_text: text,
+            filtered_text: processed.filtered_text,
+            isFiltered: processed.isFiltered,
+            words_found: processed.words_found
+        };
+    });
+
+    // Return single result or array depending on input
+    const response = {
+        results: texts.length === 1 ? results[0] : results,
         lang: selectedLanguage,
-        fill_char: fill_char,
-        fill_word: fill_word,
+        fill_char,
+        fill_word,
         extra_words: extras
     };
     if (warning) response.warning = warning;
+    
     res.status(200).json(response);
 }
 
