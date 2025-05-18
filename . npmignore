@@ -1,0 +1,12 @@
+# Ignore test files and folders
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+*.test.jsx
+*.spec.jsx
+*.test.ts
+*.spec.ts
+*.test.tsx
+*.spec.tsx

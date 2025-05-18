@@ -1,18 +1,23 @@
 {
-  "name": "api-filtro-palavras",
+  "name": "@menesesevandro/bad-word-filter-api",
+  "description": "A simple API service for filtering and removing content of profanity, obscenity and other unwanted text",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "jest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["filter", "bad words", "profanity", "obscenity", "text", "api"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MenesesEvandro/bad-word-filter-api.git"
+  },
+  "author": "Evandro Meneses Carneiro <euvandro86@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "body-parser": "^2.2.0",
     "express": "^5.1.0"
   },
-  "description": "",
   "devDependencies": {
     "jest": "^29.7.0",
     "supertest": "^7.1.1"

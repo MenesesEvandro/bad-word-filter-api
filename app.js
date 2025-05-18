@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 // Cria a aplicação Express
 const app = express();
 // Define a porta em que a API vai rodar
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Middleware para permitir que a API entenda JSON no corpo das requisições
 app.use(bodyParser.json());
