@@ -1,6 +1,28 @@
 # Bad Word Filter API
 
+[🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
+
+
 Bad Word Filter é um serviço web simples e gratuito para filtrar e remover palavrões, obscenidades e outros textos indesejados.
+
+## Instalação via npm
+
+Este pacote está disponível no npm:
+
+[https://www.npmjs.com/package/@menesesevandro/bad-word-filter-api](https://www.npmjs.com/package/@menesesevandro/bad-word-filter-api)
+
+Instale no seu projeto:
+```bash
+npm i @menesesevandro/bad-word-filter-api
+```
+
+## Como usar localmente
+
+```bash
+npm install
+npm start
+```
+A API estará disponível em `http://localhost:3000`.
 
 ## Funcionalidades
 - Suporte a múltiplos idiomas: pt-br, en-us, es-es, fr-fr, de-de
@@ -9,31 +31,22 @@ Bad Word Filter é um serviço web simples e gratuito para filtrar e remover pal
 - Adição de palavras extras para filtro
 - Ignora acentuação automaticamente
 
-## Como usar
+## Endpoints
 
-### Instalação local
-```bash
-npm install
-npm start
-```
-A API estará disponível em `http://localhost:3000`.
-
-### Endpoints
-
-#### Filtrar texto
+### Filtrar texto
 `GET /filter`
 `POST /filter`
 
-##### Parâmetros
+#### Parâmetros
 - `text` (string, obrigatório): texto a ser filtrado
 - `lang` (string, opcional): idioma (ex: pt-br, en-us, es-es, fr-fr, de-de). Padrão: pt-br
 - `fill_char` (string, opcional): caractere para substituir cada letra do palavrão. Padrão: `*`
 - `fill_word` (string, opcional): palavra fixa para substituir o palavrão (ex: "oculto"). Se informado, tem prioridade sobre `fill_char`.
 - `extras` (string ou array, opcional): até 10 palavras extras para filtrar, separadas por vírgula ou array
 
-##### Exemplo de requisição GET
+#### Exemplo de requisição GET
 ```
-GET /filter?text=isso é uma merda&lang=pt-br&fill_char=#
+GET /filter?text=isso é merda&lang=pt-br&fill_char=#
 ```
 Resposta:
 ```json
@@ -49,7 +62,7 @@ Resposta:
 }
 ```
 
-##### Exemplo de requisição com fill_word
+#### Exemplo de requisição com fill_word
 ```
 GET /filter?text=isso é uma merda&lang=pt-br&fill_word=[oculto]
 ```
@@ -67,7 +80,7 @@ Resposta:
 }
 ```
 
-##### Exemplo de requisição POST
+#### Exemplo de requisição POST
 ```json
 POST /filter
 {
@@ -77,7 +90,7 @@ POST /filter
 }
 ```
 
-#### Listar idiomas suportados
+### Listar idiomas suportados
 `GET /languages`
 
 Resposta:
