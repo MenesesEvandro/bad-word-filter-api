@@ -1,203 +1,202 @@
-// Importa o framework Express
+// Import Express framework
 const express = require('express');
-// Importa o middleware para parsear JSON
+// Import middleware to parse JSON
 const bodyParser = require('body-parser');
 
-// Cria a aplicação Express
+// Create the Express application
 const app = express();
-// Define a porta em que a API vai rodar
+// Define the port where the API will run
 const port = process.env.PORT || 3000;
 
-// Middleware para permitir que a API entenda JSON no corpo das requisições
+// Middleware to allow the API to understand JSON in request bodies
 app.use(bodyParser.json());
 
-// Idioma padrão caso nenhum seja especificado ou o especificado não seja suportado
-const IDIOMA_PADRAO = "pt-br";
+// Default language if none is specified or the specified one is not supported
+const DEFAULT_LANGUAGE = "pt-br";
 
-// Carácter para substituição dos palavrões
-const CARACTER_SUBSTITUICAO = '*';
+// Character for profanity replacement
+const REPLACEMENT_CHAR = '*';
 
-// Limite de palavras extras
-const LIMITE = 10; 
+// Limit for extra words
+const EXTRA_WORDS_LIMIT = 10;
 
 /**
- * Remove acentos e caracteres especiais de uma string
- * @param {string} texto - O texto a ser normalizado
- * @returns {string} - O texto sem acentos
+ * Removes accents and special characters from a string
+ * @param {string} text - The text to be normalized
+ * @returns {string} - The text without accents
  */
-function normalizarTexto(texto) {
-    return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+function normalizeText(text) {
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
 /**
- * Constrói uma expressão regular para encontrar qualquer um dos palavrões na lista.
- * Usa \b para garantir que palavras completas sejam correspondidas.
- * A flag 'gi' torna a regex global (encontra todas as ocorrências) e case-insensitive.
- * @param {string[]} listaPalavroes - A lista de palavrões para o idioma selecionado.
- * @returns {RegExp | null} - A expressão regular compilada ou null se a lista for vazia/inválida.
+ * Builds a regular expression to find any of the profanities in the list.
+ * Uses \b to ensure only whole words are matched.
+ * The 'gi' flag makes the regex global (finds all occurrences) and case-insensitive.
+ * @param {string[]} profanityList - The list of profanities for the selected language.
+ * @returns {RegExp | null} - The compiled regular expression or null if the list is empty/invalid.
  */
-function construirRegexPalavroes(listaPalavroes) {
-    if (!listaPalavroes || listaPalavroes.length === 0) {
+function buildProfanityRegex(profanityList) {
+    if (!profanityList || profanityList.length === 0) {
         return null;
     }
-    // Escapa caracteres especiais de regex dentro das palavras e normaliza acentuação
-    const palavroesEscapados = listaPalavroes.map(p => 
-        normalizarTexto(p).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    // Escape regex special characters in the words and normalize accents
+    const escapedWords = profanityList.map(p =>
+        normalizeText(p).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     );
-    // Cria a regex com \b para garantir que só palavras inteiras sejam capturadas
-    // e ignora diferenças de maiúsculas/minúsculas
-    const pattern = `\\b(${palavroesEscapados.join('|')})\\b`;
-    return new RegExp(pattern, 'gi'); // 'g' para global, 'i' para case-insensitive
+    // Create the regex with \b to ensure only whole words are captured
+    // and ignore case differences
+    const pattern = `\\b(${escapedWords.join('|')})\\b`;
+    return new RegExp(pattern, 'gi'); // 'g' for global, 'i' for case-insensitive
 }
 
-// Função para carregar dinamicamente a lista de palavrões do idioma solicitado
-function carregarListaPalavroes(idioma) {
+// Function to dynamically load the profanity list for the requested language
+function loadProfanityList(language) {
     try {
-        // Mapeamento entre idioma e arquivo
-        const arquivos = {
+        // Mapping between language and file
+        const files = {
             'pt-br': './lang/pt-br.js',
             'en-us': './lang/en-us.js',
             'es-es': './lang/es-es.js',
             'fr-fr': './lang/fr-fr.js',
             'de-de': './lang/de-de.js'
         };
-        const arquivo = arquivos[idioma];
-        if (!arquivo) return null;
-        return require(arquivo);
+        const file = files[language];
+        if (!file) return null;
+        return require(file);
     } catch (e) {
         return null;
     }
 }
 
-// Função utilitária para obter o texto, idioma, caractere e palavras extras da requisição
-function extrairParametros(req) {
-    // Suporte a GET (query) e POST (body)
+// Utility function to get text, language, replacement character, and extra words from the request
+function extractParams(req) {
+    // Support for GET (query) and POST (body)
     const isGet = req.method === 'GET';
-    const texto = isGet ? req.query.text : req.body.text;
-    const idioma = (isGet ? req.query.lang : req.body.lang) || IDIOMA_PADRAO;
-    const fill_char = (isGet ? req.query.fill_char : req.body.fill_char) || CARACTER_SUBSTITUICAO;
+    const text = isGet ? req.query.text : req.body.text;
+    const language = (isGet ? req.query.lang : req.body.lang) || DEFAULT_LANGUAGE;
+    const fill_char = (isGet ? req.query.fill_char : req.body.fill_char) || REPLACEMENT_CHAR;
     const fill_word = (isGet ? req.query.fill_word : req.body.fill_word) || null;
     let extras = isGet ? req.query.extras : req.body.extras;
-    // Permite extras como string separada por vírgula ou array
+    // Allow extras as comma-separated string or array
     if (typeof extras === 'string') {
         extras = extras.split(',').map(p => p.trim()).filter(Boolean);
     } else if (!Array.isArray(extras)) {
         extras = [];
     }
-    // Limita a 10 palavras
-    extras = extras.slice(0, LIMITE);
-    return { texto, idioma, fill_char, fill_word, extras };
+    // Limit to 10 words
+    extras = extras.slice(0, EXTRA_WORDS_LIMIT);
+    return { text, language, fill_char, fill_word, extras };
 }
 
-// Handler compartilhado para GET e POST
-function filtrarHandler(req, res) {
-    const { texto, idioma, fill_char, fill_word, extras } = extrairParametros(req);
-    if (typeof texto === 'undefined') {
-        return res.status(400).json({ erro: "Parâmetro ou campo 'text' é obrigatório." });
+// Shared handler for GET and POST
+function filterHandler(req, res) {
+    const { text, language, fill_char, fill_word, extras } = extractParams(req);
+    if (typeof text === 'undefined') {
+        return res.status(400).json({ error: "Parameter or field 'text' is required." });
     }
-    if (typeof texto !== 'string') {
-        return res.status(400).json({ erro: "O valor de 'text' deve ser uma string." });
+    if (typeof text !== 'string') {
+        return res.status(400).json({ error: "The value of 'text' must be a string." });
     }
-    const idiomaSelecionado = (typeof idioma === 'string' && carregarListaPalavroes(idioma.toLowerCase()))
-        ? idioma.toLowerCase()
-        : IDIOMA_PADRAO;
-    let listaDePalavroesAtual = carregarListaPalavroes(idiomaSelecionado) || [];
-    // Adiciona extras, evitando duplicatas
+    const selectedLanguage = (typeof language === 'string' && loadProfanityList(language.toLowerCase()))
+        ? language.toLowerCase()
+        : DEFAULT_LANGUAGE;
+    let currentProfanityList = loadProfanityList(selectedLanguage) || [];
+    // Add extras, avoiding duplicates
     if (extras && extras.length > 0) {
-        listaDePalavroesAtual = [...new Set([...listaDePalavroesAtual, ...extras.map(p => p.toLowerCase())])];
+        currentProfanityList = [...new Set([...currentProfanityList, ...extras.map(p => p.toLowerCase())])];
     }
-    if (!listaDePalavroesAtual || listaDePalavroesAtual.length === 0) {
+    if (!currentProfanityList || currentProfanityList.length === 0) {
         return res.status(200).json({
-            texto_original: texto,
-            texto_filtrado: texto,
-            contem_palavrao: false,
-            palavroes_encontrados: [],
-            idioma_utilizado: idiomaSelecionado
+            original_text: text,
+            filtered_text: text,
+            isFiltered: false,
+            words_found: [],
+            lang: selectedLanguage
         });
     }
-    const regexPalavroesAtual = construirRegexPalavroes(listaDePalavroesAtual);
-    if (!regexPalavroesAtual) {
+    const currentRegex = buildProfanityRegex(currentProfanityList);
+    if (!currentRegex) {
         return res.status(200).json({
-            texto_original: texto,
-            texto_filtrado: texto,
-            contem_palavrao: false,
-            palavroes_encontrados: [],
-            idioma_utilizado: idiomaSelecionado
+            original_text: text,
+            filtered_text: text,
+            isFiltered: false,
+            words_found: [],
+            lang: selectedLanguage
         });
     }
-    let textoFiltrado = texto;
-    const palavroesEncontrados = [];
-    const textoNormalizado = normalizarTexto(texto);
-    textoFiltrado = texto;
-    let lastIndex = 0;
-    // Substituição considerando fill_word ou fill_char
-    textoFiltrado = textoNormalizado.replace(regexPalavroesAtual, (match, ...args) => {
+    let filteredText = text;
+    const foundWords = [];
+    const normalizedText = normalizeText(text);
+    filteredText = text;
+    // Substitution considering fill_word or fill_char
+    filteredText = normalizedText.replace(currentRegex, (match, ...args) => {
         const offset = args[args.length - 2];
-        const palavraOriginal = texto.slice(offset, offset + match.length);
-        const lowerMatch = palavraOriginal.toLowerCase();
-        if (!palavroesEncontrados.includes(lowerMatch)) {
-            palavroesEncontrados.push(lowerMatch);
+        const originalWord = text.slice(offset, offset + match.length);
+        const lowerMatch = originalWord.toLowerCase();
+        if (!foundWords.includes(lowerMatch)) {
+            foundWords.push(lowerMatch);
         }
         if (fill_word) {
             return `${fill_word}`;
         } else {
-            return fill_char.repeat(palavraOriginal.length);
+            return fill_char.repeat(originalWord.length);
         }
     });
-    // Se fill_word foi usado, precisamos reconstruir o texto original com as substituições
+    // If fill_word was used, we need to reconstruct the original text with the replacements
     if (fill_word) {
-        // Reconstrói o texto original substituindo os palavrões por [fill_word]
-        let textoFinal = '';
+        // Reconstruct the original text replacing profanities with [fill_word]
+        let finalText = '';
         let idx = 0;
-        textoNormalizarLoop: while (idx < texto.length) {
+        while (idx < text.length) {
             let found = false;
-            for (const palavra of listaDePalavroesAtual) {
-                const palavraNorm = normalizarTexto(palavra);
-                if (normalizarTexto(texto.substr(idx, palavra.length)).toLowerCase() === palavraNorm.toLowerCase()) {
-                    textoFinal += `${fill_word}`;
-                    idx += palavra.length;
+            for (const word of currentProfanityList) {
+                const wordNorm = normalizeText(word);
+                if (normalizeText(text.substr(idx, word.length)).toLowerCase() === wordNorm.toLowerCase()) {
+                    finalText += `${fill_word}`;
+                    idx += word.length;
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                textoFinal += texto[idx];
+                finalText += text[idx];
                 idx++;
             }
         }
-        textoFiltrado = textoFinal;
+        filteredText = finalText;
     }
-    const contemPalavrao = palavroesEncontrados.length > 0;
+    const hasProfanity = foundWords.length > 0;
     res.status(200).json({
-        original_text: texto,
-        filtered_text: textoFiltrado,
-        isFiltered: contemPalavrao,
-        words_found: palavroesEncontrados,
-        lang: idiomaSelecionado,
+        original_text: text,
+        filtered_text: filteredText,
+        isFiltered: hasProfanity,
+        words_found: foundWords,
+        lang: selectedLanguage,
         fill_char: fill_char,
         fill_word: fill_word,
         extra_words: extras
     });
 }
 
-// Endpoint da API para filtrar palavrões (GET e POST)
-app.get('/filter', filtrarHandler);
-app.post('/filter', filtrarHandler);
+// API endpoint to filter profanities (GET and POST)
+app.get('/filter', filterHandler);
+app.post('/filter', filterHandler);
 
-// Rota para listar os idiomas suportados
+// Route to list supported languages
 app.get('/languages', (req, res) => {
     res.status(200).json({
         suported_lang: ['pt-br', 'en-us', 'es-es', 'fr-fr', 'de-de'],
-        default_lang: IDIOMA_PADRAO
+        default_lang: DEFAULT_LANGUAGE
     });
 });
 
-// Rota de exemplo para testar se a API está no ar
+// Example route to test if the API is up
 app.get('/', (req, res) => {
     res.status(200).json({ status: "API is ready!" });
 });
 
-// Inicia o servidor
+// Start the server
 if (require.main === module) {
     app.listen(port, () => {
         console.log(`API is ready at http://localhost:${port}`);
