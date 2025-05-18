@@ -28,7 +28,7 @@ npm start
 La API estará disponible en `http://localhost:3000`.
 
 ## Funcionalidades
-- Soporte para múltiples idiomas: pt-br, en-us, es-es, fr-fr, de-de, it-it
+- Soporte para múltiples idiomas: pt-br, en, es, fr, de, it
 - Sustitución de palabrotas por carácter personalizable o palabra fija
 - Soporta GET y POST
 - Añade palabras extra para filtrar
@@ -42,14 +42,14 @@ La API estará disponible en `http://localhost:3000`.
 
 #### Parámetros
 - `text` (string o array de strings, obligatorio): texto(s) a filtrar
-- `lang` (string, opcional): idioma (ej: pt-br, en-us, es-es, fr-fr, de-de, it-it). Por defecto: pt-br
+- `lang` (string, opcional): idioma (ej: pt-br, en, es, fr, de, it). Por defecto: pt-br
 - `fill_char` (string, opcional): carácter para reemplazar cada letra de la palabrota. Por defecto: `*`
 - `fill_word` (string, opcional): palabra fija para reemplazar la palabrota (ej: "oculto"). Si se proporciona, tiene prioridad sobre `fill_char`.
 - `extras` (string o array, opcional): hasta 10 palabras extra para filtrar, separadas por comas o array
 
 #### Ejemplo de petición GET
 ```
-GET /filter?text=esto es mierda&lang=es-es&fill_char=#
+GET /filter?text=esto es mierda&lang=es&fill_char=#
 ```
 Respuesta:
 ```json
@@ -58,7 +58,7 @@ Respuesta:
   "filtered_text": "esto es #####",
   "isFiltered": true,
   "words_found": ["mierda"],
-  "lang": "es-es",
+  "lang": "es",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": []
@@ -67,7 +67,7 @@ Respuesta:
 
 #### Ejemplo con fill_word
 ```
-GET /filter?text=esto es mierda&lang=es-es&fill_word=[oculto]
+GET /filter?text=esto es mierda&lang=es&fill_word=[oculto]
 ```
 Respuesta:
 ```json
@@ -76,7 +76,7 @@ Respuesta:
   "filtered_text": "esto es [oculto]",
   "isFiltered": true,
   "words_found": ["mierda"],
-  "lang": "es-es",
+  "lang": "es",
   "fill_char": "*",
   "fill_word": "[oculto]",
   "extra_words": []
@@ -101,7 +101,7 @@ Respuesta:
     "isFiltered": true,
     "words_found": ["plátano", "naranja"]
   },
-  "lang": "es-es",
+  "lang": "es",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["plátano", "naranja"]
@@ -144,7 +144,7 @@ Respuesta:
       "words_found": ["plátano"]
     }
   ],
-  "lang": "es-es",
+  "lang": "es",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["plátano"]
@@ -163,23 +163,23 @@ Respuesta:
             "name": "Português (Brasil)"
         },
         {
-            "code": "en-us",
+            "code": "en",
             "name": "English (USA)"
         },
         {
-            "code": "es-es",
+            "code": "es",
             "name": "Español (España)"
         },
         {
-            "code": "fr-fr",
+            "code": "fr",
             "name": "Français (France)"
         },
         {
-            "code": "de-de",
+            "code": "de",
             "name": "Deutsch (Deutschland)"
         }
     ],
-    "default_lang": "en-us"
+    "default_lang": "en"
 }
 ```
 

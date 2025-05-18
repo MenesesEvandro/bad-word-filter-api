@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 // Default language if none is specified or the specified one is not supported
-const DEFAULT_LANGUAGE = "en-us";
+const DEFAULT_LANGUAGE = "en";
 
 // Character for profanity replacement
 const REPLACEMENT_CHAR = '*';

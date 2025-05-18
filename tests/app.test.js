@@ -10,7 +10,7 @@ describe('Bad Word Filter API', () => {
   test('Replaces profanity with character (GET)', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'this is bullshit', lang: 'en-us', fill_char: '#' });
+      .query({ text: 'this is bullshit', lang: 'en', fill_char: '#' });
     expect(res.status).toBe(200);
     expect(res.body.results.filtered_text).toMatch(/#+/);
     expect(res.body.results.isFiltered).toBe(true);
@@ -20,7 +20,7 @@ describe('Bad Word Filter API', () => {
   test('Replaces profanity with fixed word (GET)', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'this is bullshit', lang: 'en-us', fill_word: 'hidden' });
+      .query({ text: 'this is bullshit', lang: 'en', fill_word: 'hidden' });
     expect(res.status).toBe(200);
     expect(res.body.results.filtered_text).toContain('hidden');
     expect(res.body.results.isFiltered).toBe(true);
@@ -29,7 +29,7 @@ describe('Bad Word Filter API', () => {
   test('Replaces profanity with character (POST)', async () => {
     const res = await request(app)
       .post('/filter')
-      .send({ text: 'this is bullshit', lang: 'en-us', fill_char: '*' });
+      .send({ text: 'this is bullshit', lang: 'en', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.filtered_text).toMatch(/\*+/);
     expect(res.body.results.isFiltered).toBe(true);
@@ -38,7 +38,7 @@ describe('Bad Word Filter API', () => {
   test('Ignores accents', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'bullshít', lang: 'en-us', fill_char: '#' });
+      .query({ text: 'bullshít', lang: 'en', fill_char: '#' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
   });
@@ -55,7 +55,7 @@ describe('Bad Word Filter API', () => {
   test('Filters in Spanish', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'esto es mierda', lang: 'es-es', fill_char: '*' });
+      .query({ text: 'esto es mierda', lang: 'es', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.words_found).toContain('mierda');
@@ -64,7 +64,7 @@ describe('Bad Word Filter API', () => {
   test('Filters in French', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'c\'est de la merde', lang: 'fr-fr', fill_char: '*' });
+      .query({ text: 'c\'est de la merde', lang: 'fr', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.words_found).toContain('merde');
@@ -73,7 +73,7 @@ describe('Bad Word Filter API', () => {
   test('Filters in German', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'das ist scheiße', lang: 'de-de', fill_char: '*' });
+      .query({ text: 'das ist scheiße', lang: 'de', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.filtered_text).toBe('das ist *******');
@@ -82,7 +82,7 @@ describe('Bad Word Filter API', () => {
   test('Filters in Italian', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'questo è merda', lang: 'it-it', fill_char: '*' });
+      .query({ text: 'questo è merda', lang: 'it', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.words_found).toContain('merda');
@@ -92,7 +92,7 @@ describe('Bad Word Filter API', () => {
   test('Replaces profanity with character (GET)', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'this is bullshit', lang: 'en-us', fill_char: '#' });
+      .query({ text: 'this is bullshit', lang: 'en', fill_char: '#' });
     expect(res.status).toBe(200);
     expect(res.body.results.filtered_text).toMatch(/#+/);
     expect(res.body.results.isFiltered).toBe(true);
@@ -102,7 +102,7 @@ describe('Bad Word Filter API', () => {
   test('Replaces profanity with fixed word (GET)', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'this is bullshit', lang: 'en-us', fill_word: 'hidden' });
+      .query({ text: 'this is bullshit', lang: 'en', fill_word: 'hidden' });
     expect(res.status).toBe(200);
     expect(res.body.results.filtered_text).toContain('hidden');
     expect(res.body.results.isFiltered).toBe(true);
@@ -111,7 +111,7 @@ describe('Bad Word Filter API', () => {
   test('Replaces profanity with character (POST)', async () => {
     const res = await request(app)
       .post('/filter')
-      .send({ text: 'this is bullshit', lang: 'en-us', fill_char: '*' });
+      .send({ text: 'this is bullshit', lang: 'en', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.filtered_text).toMatch(/\*+/);
     expect(res.body.results.isFiltered).toBe(true);
@@ -120,7 +120,7 @@ describe('Bad Word Filter API', () => {
   test('Ignores accents', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'bullshít', lang: 'en-us', fill_char: '#' });
+      .query({ text: 'bullshít', lang: 'en', fill_char: '#' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
   });
@@ -137,7 +137,7 @@ describe('Bad Word Filter API', () => {
   test('Filters in Spanish', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'esto es mierda', lang: 'es-es', fill_char: '*' });
+      .query({ text: 'esto es mierda', lang: 'es', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.words_found).toContain('mierda');
@@ -146,7 +146,7 @@ describe('Bad Word Filter API', () => {
   test('Filters in French', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'c\'est de la merde', lang: 'fr-fr', fill_char: '*' });
+      .query({ text: 'c\'est de la merde', lang: 'fr', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.words_found).toContain('merde');
@@ -155,7 +155,7 @@ describe('Bad Word Filter API', () => {
   test('Filters in German', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'das ist scheiße', lang: 'de-de', fill_char: '*' });
+      .query({ text: 'das ist scheiße', lang: 'de', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.filtered_text).toBe('das ist *******');
@@ -164,7 +164,7 @@ describe('Bad Word Filter API', () => {
   test('Filters in Italian', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'questo è merda', lang: 'it-it', fill_char: '*' });
+      .query({ text: 'questo è merda', lang: 'it', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.words_found).toContain('merda');
@@ -174,7 +174,7 @@ describe('Bad Word Filter API', () => {
   test('Returns error if text is not provided', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ lang: 'en-us', fill_char: '*' });
+      .query({ lang: 'en', fill_char: '*' });
     expect(res.status).toBe(400);
     expect(res.body.error).toBeDefined();
   });
@@ -182,7 +182,7 @@ describe('Bad Word Filter API', () => {
   test('Returns error if text is not a string', async () => {
     const res = await request(app)
       .post('/filter')
-      .send({ text: 123, lang: 'en-us', fill_char: '*' });
+      .send({ text: 123, lang: 'en', fill_char: '*' });
     expect(res.status).toBe(400);
     expect(res.body.error).toBeDefined();
   });
@@ -196,7 +196,7 @@ describe('Bad Word Filter API', () => {
           'second clean text',
           'third with damn'
         ],
-        lang: 'en-us',
+        lang: 'en',
         fill_char: '#'
       });
     
@@ -222,7 +222,7 @@ describe('Bad Word Filter API', () => {
       .post('/filter')
       .send({
         text: ['single text with bullshit'],
-        lang: 'en-us',
+        lang: 'en',
         fill_char: '#'
       });
     
@@ -256,7 +256,7 @@ describe('Bad Word Filter API', () => {
   test('Handles empty array correctly', async () => {
     const res = await request(app)
       .post('/filter')
-      .send({ text: [], lang: 'en-us' });
+      .send({ text: [], lang: 'en' });
     
     expect(res.status).toBe(400);
     expect(res.body.error).toBeDefined();
@@ -267,7 +267,7 @@ describe('Bad Word Filter API', () => {
       .post('/filter')
       .send({
         text: ['text with bullshit', 123, null, undefined, 'another text with damn'],
-        lang: 'en-us',
+        lang: 'en',
         fill_char: '#'
       });
     
@@ -284,7 +284,7 @@ describe('Bad Word Filter API', () => {
       .query({ text: 'this is bullshit', lang: 'invalid-lang', fill_char: '*' });
     expect(res.status).toBe(200);
     expect(res.body.warning).toBeDefined();
-    expect(res.body.lang).toBe('en-us');
+    expect(res.body.lang).toBe('en');
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.words_found).toContain('bullshit');
   });
@@ -294,10 +294,10 @@ describe('Bad Word Filter API', () => {
       .get('/languages');
     expect(res.status).toBe(200);
     expect(res.body.languages).toHaveLength(6);
-    expect(res.body.default_lang).toBe('en-us');
+    expect(res.body.default_lang).toBe('en');
     
     // Verificar a presença de todos os idiomas suportados
-    const expectedLanguages = ['pt-br', 'en-us', 'es-es', 'fr-fr', 'de-de', 'it-it'];
+    const expectedLanguages = ['pt-br', 'en', 'es', 'fr', 'de', 'it'];
     const codes = res.body.languages.map(lang => lang.code);
     expectedLanguages.forEach(lang => {
       expect(codes).toContain(lang);
@@ -306,17 +306,17 @@ describe('Bad Word Filter API', () => {
     // Verificar se os nomes dos idiomas estão corretos
     const langMap = new Map(res.body.languages.map(lang => [lang.code, lang.name]));
     expect(langMap.get('pt-br')).toBe('Português (Brasil)');
-    expect(langMap.get('en-us')).toBe('English (USA)');
-    expect(langMap.get('es-es')).toBe('Español (España)');
-    expect(langMap.get('fr-fr')).toBe('Français (France)');
-    expect(langMap.get('de-de')).toBe('Deutsch (Deutschland)');
-    expect(langMap.get('it-it')).toBe('Italiano (Italia)');
+    expect(langMap.get('en')).toBe('English (USA)');
+    expect(langMap.get('es')).toBe('Español (España)');
+    expect(langMap.get('fr')).toBe('Français (France)');
+    expect(langMap.get('de')).toBe('Deutsch (Deutschland)');
+    expect(langMap.get('it')).toBe('Italiano (Italia)');
   });
 
   test('Handles mixed case profanity correctly', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'this is BuLlShIt', lang: 'en-us', fill_char: '#' });
+      .query({ text: 'this is BuLlShIt', lang: 'en', fill_char: '#' });
     expect(res.status).toBe(200);
     expect(res.body.results.isFiltered).toBe(true);
     expect(res.body.results.words_found).toContain('bullshit');
@@ -325,7 +325,7 @@ describe('Bad Word Filter API', () => {
   test('Preserves original text case in filtered output', async () => {
     const res = await request(app)
       .get('/filter')
-      .query({ text: 'This is BULLSHIT', lang: 'en-us', fill_char: '#' });
+      .query({ text: 'This is BULLSHIT', lang: 'en', fill_char: '#' });
     expect(res.status).toBe(200);
     expect(res.body.results.filtered_text).toBe('This is ########');
   });
@@ -335,7 +335,7 @@ describe('Bad Word Filter API', () => {
       .post('/filter')
       .send({
         text: 'this bullshit is shit',
-        lang: 'en-us',
+        lang: 'en',
         fill_char: '#'
       });
     

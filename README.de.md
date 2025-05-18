@@ -28,7 +28,7 @@ npm start
 Die API ist dann unter `http://localhost:3000` erreichbar.
 
 ## Funktionen
-- Unterstützung für mehrere Sprachen: pt-br, en-us, es-es, fr-fr, de-de, it-it
+- Unterstützung für mehrere Sprachen: pt-br, en, es, fr, de, it
 - Ersetzen von Schimpfwörtern durch ein anpassbares Zeichen oder ein festes Wort
 - Unterstützt GET und POST
 - Hinzufügen von zusätzlichen Wörtern zum Filtern
@@ -42,14 +42,14 @@ Die API ist dann unter `http://localhost:3000` erreichbar.
 
 #### Parameter
 - `text` (String oder String-Array, erforderlich): zu filternde(r) Text(e)
-- `lang` (String, optional): Sprache (z.B. pt-br, en-us, es-es, fr-fr, de-de, it-it). Standard: pt-br
+- `lang` (String, optional): Sprache (z.B. pt-br, en, es, fr, de). Standard: pt-br
 - `fill_char` (String, optional): Zeichen zum Ersetzen jedes Buchstabens des Schimpfworts. Standard: `*`
 - `fill_word` (String, optional): Festes Wort zum Ersetzen des Schimpfworts (z.B. "versteckt"). Wenn angegeben, hat es Vorrang vor `fill_char`.
 - `extras` (String oder Array, optional): bis zu 10 zusätzliche Wörter zum Filtern, durch Kommas getrennt oder Array
 
 #### Beispiel GET-Anfrage
 ```
-GET /filter?text=das ist scheiße&lang=de-de&fill_char=#
+GET /filter?text=das ist scheiße&lang=de&fill_char=#
 ```
 Antwort:
 ```json
@@ -58,7 +58,7 @@ Antwort:
   "filtered_text": "das ist #####",
   "isFiltered": true,
   "words_found": ["scheiße"],
-  "lang": "de-de",
+  "lang": "de",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": []
@@ -67,7 +67,7 @@ Antwort:
 
 #### Beispiel mit fill_word
 ```
-GET /filter?text=das ist scheiße&lang=de-de&fill_word=[versteckt]
+GET /filter?text=das ist scheiße&lang=de&fill_word=[versteckt]
 ```
 Antwort:
 ```json
@@ -76,7 +76,7 @@ Antwort:
   "filtered_text": "das ist [versteckt]",
   "isFiltered": true,
   "words_found": ["scheiße"],
-  "lang": "de-de",
+  "lang": "de",
   "fill_char": "*",
   "fill_word": "[versteckt]",
   "extra_words": []
@@ -101,7 +101,7 @@ Antwort:
     "isFiltered": true,
     "words_found": ["banane", "orange"]
   },
-  "lang": "de-de",
+  "lang": "de",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["banane", "orange"]
@@ -144,7 +144,7 @@ Antwort:
       "words_found": ["banane"]
     }
   ],
-  "lang": "de-de",
+  "lang": "de",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["banane"]
@@ -163,23 +163,23 @@ Antwort:
             "name": "Português (Brasil)"
         },
         {
-            "code": "en-us",
+            "code": "en",
             "name": "English (USA)"
         },
         {
-            "code": "es-es",
+            "code": "es",
             "name": "Español (España)"
         },
         {
-            "code": "fr-fr",
+            "code": "fr",
             "name": "Français (France)"
         },
         {
-            "code": "de-de",
+            "code": "de",
             "name": "Deutsch (Deutschland)"
         }
     ],
-    "default_lang": "en-us"
+    "default_lang": "en"
 }
 ```
 

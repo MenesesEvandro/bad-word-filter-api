@@ -28,7 +28,7 @@ npm start
 L'API sera disponible sur `http://localhost:3000`.
 
 ## Fonctionnalités
-- Prise en charge de plusieurs langues : pt-br, en-us, es-es, fr-fr, de-de, it-it
+- Prise en charge de plusieurs langues : pt-br, en, es, fr, de, it
 - Remplacement des grossièretés par un caractère personnalisable ou un mot fixe
 - Prend en charge GET et POST
 - Ajout de mots supplémentaires à filtrer
@@ -42,14 +42,14 @@ L'API sera disponible sur `http://localhost:3000`.
 
 #### Paramètres
 - `text` (string ou tableau de strings, obligatoire): texte(s) à filtrer
-- `lang` (string, optionnel): langue (ex: pt-br, en-us, es-es, fr-fr, de-de, it-it). Par défaut: pt-br
+- `lang` (string, optionnel): langue (ex: pt-br, en, es, fr, de, it). Par défaut: pt-br
 - `fill_char` (string, optionnel): caractère pour remplacer chaque lettre du gros mot. Par défaut: `*`
 - `fill_word` (string, optionnel): mot fixe pour remplacer le gros mot (ex: "caché"). Si fourni, prend la priorité sur `fill_char`.
 - `extras` (string ou tableau, optionnel): jusqu'à 10 mots supplémentaires à filtrer, séparés par des virgules ou tableau
 
 #### Exemple de requête GET
 ```
-GET /filter?text=c'est de la merde&lang=fr-fr&fill_char=#
+GET /filter?text=c'est de la merde&lang=fr&fill_char=#
 ```
 Réponse :
 ```json
@@ -58,7 +58,7 @@ Réponse :
   "filtered_text": "c'est de la #####",
   "isFiltered": true,
   "words_found": ["merde"],
-  "lang": "fr-fr",
+  "lang": "fr",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": []
@@ -67,7 +67,7 @@ Réponse :
 
 #### Exemple avec fill_word
 ```
-GET /filter?text=c'est de la merde&lang=fr-fr&fill_word=[caché]
+GET /filter?text=c'est de la merde&lang=fr&fill_word=[caché]
 ```
 Réponse :
 ```json
@@ -76,7 +76,7 @@ Réponse :
   "filtered_text": "c'est de la [caché]",
   "isFiltered": true,
   "words_found": ["merde"],
-  "lang": "fr-fr",
+  "lang": "fr",
   "fill_char": "*",
   "fill_word": "[caché]",
   "extra_words": []
@@ -101,7 +101,7 @@ Réponse:
     "isFiltered": true,
     "words_found": ["banane", "orange"]
   },
-  "lang": "fr-fr",
+  "lang": "fr",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["banane", "orange"]
@@ -144,7 +144,7 @@ Réponse:
       "words_found": ["banane"]
     }
   ],
-  "lang": "fr-fr",
+  "lang": "fr",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["banane"]
@@ -163,23 +163,23 @@ Réponse :
             "name": "Português (Brasil)"
         },
         {
-            "code": "en-us",
+            "code": "en",
             "name": "English (USA)"
         },
         {
-            "code": "es-es",
+            "code": "es",
             "name": "Español (España)"
         },
         {
-            "code": "fr-fr",
+            "code": "fr",
             "name": "Français (France)"
         },
         {
-            "code": "de-de",
+            "code": "de",
             "name": "Deutsch (Deutschland)"
         }
     ],
-    "default_lang": "en-us"
+    "default_lang": "en"
 }
 ```
 

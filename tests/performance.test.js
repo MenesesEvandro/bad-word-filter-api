@@ -13,7 +13,7 @@ describe('API Performance Tests', () => {
             .post('/filter')
             .send({
                 text: 'this is a test text with some bad words like bullshit and damn',
-                lang: 'en-us'
+                lang: 'en'
             });
         const endTime = Date.now();
         const responseTime = endTime - startTime;
@@ -33,7 +33,7 @@ describe('API Performance Tests', () => {
             .post('/filter')
             .send({
                 text: texts,
-                lang: 'en-us'
+                lang: 'en'
             });
         const endTime = Date.now();
         const responseTime = endTime - startTime;
@@ -53,7 +53,7 @@ describe('API Performance Tests', () => {
                 .post('/filter')
                 .send({
                     text: 'this is a test text with some bad words like bullshit and damn',
-                    lang: 'en-us'
+                    lang: 'en'
                 })
         );
 
@@ -79,7 +79,7 @@ describe('API Performance Tests', () => {
             .post('/filter')
             .send({
                 text: texts,
-                lang: 'en-us'
+                lang: 'en'
             });
 
         expect(res.status).toBe(200);
@@ -95,7 +95,7 @@ describe('API Performance Tests', () => {
             .post('/filter')
             .send({
                 text: longText,
-                lang: 'en-us'
+                lang: 'en'
             });
         const endTime = Date.now();
         const responseTime = endTime - startTime;
@@ -115,7 +115,7 @@ describe('API Performance Tests', () => {
             .send({
                 text,
                 extras,
-                lang: 'en-us'
+                lang: 'en'
             });
         const endTime = Date.now();
         const responseTime = endTime - startTime;
@@ -138,7 +138,7 @@ describe('API Performance Tests', () => {
                     .post('/filter')
                     .send({
                         text: 'this is a test text with some bad words like bullshit and damn',
-                        lang: 'en-us'
+                        lang: 'en'
                     })
             );
 
@@ -160,7 +160,7 @@ describe('API Performance Tests', () => {
 
     // Test multiple languages concurrently
     test('Should handle concurrent requests in different languages', async () => {
-        const languages = ['en-us', 'pt-br', 'es-es', 'fr-fr', 'de-de'];
+        const languages = ['en', 'pt-br', 'es', 'fr', 'de'];
         const requests = languages.flatMap(lang =>
             Array.from({ length: 10 }, () =>
                 request(app)
@@ -195,7 +195,7 @@ describe('API Performance Tests', () => {
                     .post('/filter')
                     .send({
                         text: 'test text',
-                        lang: 'en-us'
+                        lang: 'en'
                     });
                 
                 expect(res.status).toBe(200);
@@ -223,7 +223,7 @@ describe('API Performance Tests', () => {
                 .post('/filter')
                 .send({
                     text: largeText,
-                    lang: 'en-us'
+                    lang: 'en'
                 });
             
             expect(res.status).toBe(200);

@@ -24,7 +24,7 @@ npm start
 L'API sarà disponibile su `http://localhost:3000`.
 
 ## Caratteristiche
-- Supporto multilingue: pt-br, en-us, es-es, fr-fr, de-de, it-it
+- Supporto multilingue: pt-br, en, es, fr, de, it
 - Sostituisci le parolacce con un carattere personalizzabile o una parola fissa
 - Supporta GET e POST
 - Aggiungi parole extra da filtrare
@@ -38,14 +38,14 @@ L'API sarà disponibile su `http://localhost:3000`.
 
 #### Parametri
 - `text` (stringa o array di stringhe, obbligatorio): testo/i da filtrare
-- `lang` (stringa, opzionale): lingua (es. pt-br, en-us, es-es, fr-fr, de-de, it-it). Predefinito: pt-br
+- `lang` (stringa, opzionale): lingua (es. pt-br, en, es, fr, de, it). Predefinito: pt-br
 - `fill_char` (stringa, opzionale): carattere per sostituire ogni lettera della parolaccia. Predefinito: `*`
 - `fill_word` (stringa, opzionale): parola fissa per sostituire la parolaccia (es. "nascosto"). Se fornito, ha la precedenza su `fill_char`.
 - `extras` (stringa o array, opzionale): fino a 10 parole extra da filtrare, separate da virgola o array
 
 #### Esempio richiesta GET
 ```
-GET /filter?text=questo è merda&lang=it-it&fill_char=#
+GET /filter?text=questo è merda&lang=it&fill_char=#
 ```
 Risposta:
 ```json
@@ -54,7 +54,7 @@ Risposta:
   "filtered_text": "questo è #####",
   "isFiltered": true,
   "words_found": ["merda"],
-  "lang": "it-it",
+  "lang": "it",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": []
@@ -63,7 +63,7 @@ Risposta:
 
 #### Esempio con fill_word
 ```
-GET /filter?text=questo è merda&lang=it-it&fill_word=[nascosto]
+GET /filter?text=questo è merda&lang=it&fill_word=[nascosto]
 ```
 Risposta:
 ```json
@@ -72,7 +72,7 @@ Risposta:
   "filtered_text": "questo è [nascosto]",
   "isFiltered": true,
   "words_found": ["merda"],
-  "lang": "it-it",
+  "lang": "it",
   "fill_char": "*",
   "fill_word": "[nascosto]",
   "extra_words": []
@@ -97,7 +97,7 @@ Risposta:
     "isFiltered": true,
     "words_found": ["banana", "arancia"]
   },
-  "lang": "it-it",
+  "lang": "it",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["banana", "arancia"]
@@ -140,7 +140,7 @@ Risposta:
       "words_found": ["banana"]
     }
   ],
-  "lang": "it-it",
+  "lang": "it",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["banana"]
@@ -159,27 +159,27 @@ Risposta:
             "name": "Português (Brasil)"
         },
         {
-            "code": "en-us",
+            "code": "en",
             "name": "English (USA)"
         },
         {
-            "code": "es-es",
+            "code": "es",
             "name": "Español (España)"
         },
         {
-            "code": "fr-fr",
+            "code": "fr",
             "name": "Français (France)"
         },
         {
-            "code": "de-de",
+            "code": "de",
             "name": "Deutsch (Deutschland)"
         },
         {
-            "code": "it-it",
+            "code": "it",
             "name": "Italiano (Italia)"
         }
     ],
-    "default_lang": "en-us"
+    "default_lang": "en"
 }
 ```
 
