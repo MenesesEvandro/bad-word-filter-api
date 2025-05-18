@@ -37,11 +37,11 @@ L'API sera disponible sur `http://localhost:3000`.
 `POST /filter`
 
 #### Paramètres
-- `text` (string, requis) : texte à filtrer
-- `lang` (string, optionnel) : langue (ex : pt-br, en-us, es-es, fr-fr, de-de). Par défaut : pt-br
-- `fill_char` (string, optionnel) : caractère pour remplacer chaque lettre du mot grossier. Par défaut : `*`
-- `fill_word` (string, optionnel) : mot fixe pour remplacer le mot grossier (ex : "caché"). Si renseigné, il a priorité sur `fill_char`.
-- `extras` (string ou tableau, optionnel) : jusqu'à 10 mots supplémentaires à filtrer, séparés par des virgules ou un tableau
+- `text` (string ou tableau de strings, obligatoire): texte(s) à filtrer
+- `lang` (string, optionnel): langue (ex: pt-br, en-us, es-es, fr-fr, de-de). Par défaut: pt-br
+- `fill_char` (string, optionnel): caractère pour remplacer chaque lettre du gros mot. Par défaut: `*`
+- `fill_word` (string, optionnel): mot fixe pour remplacer le gros mot (ex: "caché"). Si fourni, prend la priorité sur `fill_char`.
+- `extras` (string ou tableau, optionnel): jusqu'à 10 mots supplémentaires à filtrer, séparés par des virgules ou tableau
 
 #### Exemple de requête GET
 ```
@@ -79,7 +79,7 @@ Réponse :
 }
 ```
 
-#### Exemple de requête POST
+#### Exemple de requête POST avec texte unique
 ```json
 POST /filter
 {
@@ -88,15 +88,94 @@ POST /filter
   "fill_char": "#"
 }
 ```
+Réponse:
+```json
+{
+  "results": {
+    "original_text": "banane orange",
+    "filtered_text": "###### ######",
+    "isFiltered": true,
+    "words_found": ["banane", "orange"]
+  },
+  "lang": "fr-fr",
+  "fill_char": "#",
+  "fill_word": null,
+  "extra_words": ["banane", "orange"]
+}
+```
 
-### Lister les langues prises en charge
+#### Exemple de requête POST avec textes multiples
+```json
+POST /filter
+{
+  "text": [
+    "premier texte avec gros mot",
+    "deuxième texte propre",
+    "troisième avec banane"
+  ],
+  "extras": ["banane"],
+  "fill_char": "#"
+}
+```
+Réponse:
+```json
+{
+  "results": [
+    {
+      "original_text": "premier texte avec gros mot",
+      "filtered_text": "premier texte avec ########",
+      "isFiltered": true,
+      "words_found": ["gros mot"]
+    },
+    {
+      "original_text": "deuxième texte propre",
+      "filtered_text": "deuxième texte propre",
+      "isFiltered": false,
+      "words_found": []
+    },
+    {
+      "original_text": "troisième avec banane",
+      "filtered_text": "troisième avec ######",
+      "isFiltered": true,
+      "words_found": ["banane"]
+    }
+  ],
+  "lang": "fr-fr",
+  "fill_char": "#",
+  "fill_word": null,
+  "extra_words": ["banane"]
+}
+```
+
+### Lister les langues supportées
 `GET /languages`
 
 Réponse :
 ```json
 {
-  "suported_lang": ["pt-br", "en-us", "es-es", "fr-fr", "de-de"],
-  "default_lang": "pt-br"
+    "languages": [
+        {
+            "code": "pt-br",
+            "name": "Português (Brasil)"
+        },
+        {
+            "code": "en-us",
+            "name": "English (USA)"
+        },
+        {
+            "code": "es-es",
+            "name": "Español (España)"
+        },
+        {
+            "code": "fr-fr",
+            "name": "Français (France)"
+        },
+        {
+            "code": "de-de",
+            "name": "Deutsch (Deutschland)"
+        }
+    ],
+    "default_lang": "en-us"
 }
 ```
 

@@ -37,11 +37,11 @@ Die API ist dann unter `http://localhost:3000` erreichbar.
 `POST /filter`
 
 #### Parameter
-- `text` (string, erforderlich): zu filternder Text
-- `lang` (string, optional): Sprache (z.B. pt-br, en-us, es-es, fr-fr, de-de). Standard: pt-br
-- `fill_char` (string, optional): Zeichen zum Ersetzen jedes Buchstabens des Schimpfworts. Standard: `*`
-- `fill_word` (string, optional): Festes Wort zum Ersetzen des Schimpfworts (z.B. "versteckt"). Wenn angegeben, hat es Vorrang vor `fill_char`.
-- `extras` (string oder Array, optional): bis zu 10 zusätzliche Wörter zum Filtern, durch Kommas getrennt oder als Array
+- `text` (String oder String-Array, erforderlich): zu filternde(r) Text(e)
+- `lang` (String, optional): Sprache (z.B. pt-br, en-us, es-es, fr-fr, de-de). Standard: pt-br
+- `fill_char` (String, optional): Zeichen zum Ersetzen jedes Buchstabens des Schimpfworts. Standard: `*`
+- `fill_word` (String, optional): Festes Wort zum Ersetzen des Schimpfworts (z.B. "versteckt"). Wenn angegeben, hat es Vorrang vor `fill_char`.
+- `extras` (String oder Array, optional): bis zu 10 zusätzliche Wörter zum Filtern, durch Kommas getrennt oder Array
 
 #### Beispiel GET-Anfrage
 ```
@@ -79,13 +79,71 @@ Antwort:
 }
 ```
 
-#### Beispiel POST-Anfrage
+#### Beispiel POST-Anfrage mit einzelnem Text
 ```json
 POST /filter
 {
   "text": "banane orange",
   "extras": ["banane", "orange"],
   "fill_char": "#"
+}
+```
+Antwort:
+```json
+{
+  "results": {
+    "original_text": "banane orange",
+    "filtered_text": "###### ######",
+    "isFiltered": true,
+    "words_found": ["banane", "orange"]
+  },
+  "lang": "de-de",
+  "fill_char": "#",
+  "fill_word": null,
+  "extra_words": ["banane", "orange"]
+}
+```
+
+#### Beispiel POST-Anfrage mit mehreren Texten
+```json
+POST /filter
+{
+  "text": [
+    "erster Text mit Schimpfwort",
+    "zweiter sauberer Text",
+    "dritter mit Banane"
+  ],
+  "extras": ["banane"],
+  "fill_char": "#"
+}
+```
+Antwort:
+```json
+{
+  "results": [
+    {
+      "original_text": "erster Text mit Schimpfwort",
+      "filtered_text": "erster Text mit ##########",
+      "isFiltered": true,
+      "words_found": ["schimpfwort"]
+    },
+    {
+      "original_text": "zweiter sauberer Text",
+      "filtered_text": "zweiter sauberer Text",
+      "isFiltered": false,
+      "words_found": []
+    },
+    {
+      "original_text": "dritter mit Banane",
+      "filtered_text": "dritter mit ######",
+      "isFiltered": true,
+      "words_found": ["banane"]
+    }
+  ],
+  "lang": "de-de",
+  "fill_char": "#",
+  "fill_word": null,
+  "extra_words": ["banane"]
 }
 ```
 
@@ -95,8 +153,29 @@ POST /filter
 Antwort:
 ```json
 {
-  "suported_lang": ["pt-br", "en-us", "es-es", "fr-fr", "de-de"],
-  "default_lang": "pt-br"
+    "languages": [
+        {
+            "code": "pt-br",
+            "name": "Português (Brasil)"
+        },
+        {
+            "code": "en-us",
+            "name": "English (USA)"
+        },
+        {
+            "code": "es-es",
+            "name": "Español (España)"
+        },
+        {
+            "code": "fr-fr",
+            "name": "Français (France)"
+        },
+        {
+            "code": "de-de",
+            "name": "Deutsch (Deutschland)"
+        }
+    ],
+    "default_lang": "en-us"
 }
 ```
 

@@ -37,13 +37,13 @@ The API will be available at `http://localhost:3000`.
 `POST /filter`
 
 #### Parameters
-- `text` (string, required): text to be filtered
+- `text` (string or string array, required): text(s) to be filtered
 - `lang` (string, optional): language (e.g., pt-br, en-us, es-es, fr-fr, de-de). Default: pt-br
-- `fill_char` (string, optional): character to replace each letter of the bad word. Default: `*`
-- `fill_word` (string, optional): fixed word to replace the bad word (e.g., "hidden"). If provided, takes precedence over `fill_char`.
-- `extras` (string or array, optional): up to 10 extra words to filter, separated by comma or array
+- `fill_char` (string, optional): character to replace each letter of the profanity. Default: `*`
+- `fill_word` (string, optional): fixed word to replace the profanity (e.g., "hidden"). If provided, takes precedence over `fill_char`.
+- `extras` (string or array, optional): up to 10 extra words to filter, comma-separated or array
 
-#### Example GET request
+#### GET request example
 ```
 GET /filter?text=this is shit&lang=en-us&fill_char=#
 ```
@@ -79,13 +79,71 @@ Response:
 }
 ```
 
-#### Example POST request
+#### POST request example with single text
 ```json
 POST /filter
 {
   "text": "banana orange",
   "extras": ["banana", "orange"],
   "fill_char": "#"
+}
+```
+Response:
+```json
+{
+  "results": {
+    "original_text": "banana orange",
+    "filtered_text": "##### ######",
+    "isFiltered": true,
+    "words_found": ["banana", "orange"]
+  },
+  "lang": "en-us",
+  "fill_char": "#",
+  "fill_word": null,
+  "extra_words": ["banana", "orange"]
+}
+```
+
+#### POST request example with multiple texts
+```json
+POST /filter
+{
+  "text": [
+    "first text with curse",
+    "second clean text",
+    "third with banana"
+  ],
+  "extras": ["banana"],
+  "fill_char": "#"
+}
+```
+Response:
+```json
+{
+  "results": [
+    {
+      "original_text": "first text with curse",
+      "filtered_text": "first text with #####",
+      "isFiltered": true,
+      "words_found": ["curse"]
+    },
+    {
+      "original_text": "second clean text",
+      "filtered_text": "second clean text",
+      "isFiltered": false,
+      "words_found": []
+    },
+    {
+      "original_text": "third with banana",
+      "filtered_text": "third with #####",
+      "isFiltered": true,
+      "words_found": ["banana"]
+    }
+  ],
+  "lang": "en-us",
+  "fill_char": "#",
+  "fill_word": null,
+  "extra_words": ["banana"]
 }
 ```
 
@@ -95,8 +153,29 @@ POST /filter
 Response:
 ```json
 {
-  "suported_lang": ["pt-br", "en-us", "es-es", "fr-fr", "de-de"],
-  "default_lang": "pt-br"
+    "languages": [
+        {
+            "code": "pt-br",
+            "name": "Português (Brasil)"
+        },
+        {
+            "code": "en-us",
+            "name": "English (USA)"
+        },
+        {
+            "code": "es-es",
+            "name": "Español (España)"
+        },
+        {
+            "code": "fr-fr",
+            "name": "Français (France)"
+        },
+        {
+            "code": "de-de",
+            "name": "Deutsch (Deutschland)"
+        }
+    ],
+    "default_lang": "en-us"
 }
 ```
 

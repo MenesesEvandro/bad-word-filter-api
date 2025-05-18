@@ -38,7 +38,7 @@ A API estará disponível em `http://localhost:3000`.
 `POST /filter`
 
 #### Parâmetros
-- `text` (string, obrigatório): texto a ser filtrado
+- `text` (string ou array de strings, obrigatório): texto(s) a ser(em) filtrado(s)
 - `lang` (string, opcional): idioma (ex: pt-br, en-us, es-es, fr-fr, de-de). Padrão: pt-br
 - `fill_char` (string, opcional): caractere para substituir cada letra do palavrão. Padrão: `*`
 - `fill_word` (string, opcional): palavra fixa para substituir o palavrão (ex: "oculto"). Se informado, tem prioridade sobre `fill_char`.
@@ -80,13 +80,71 @@ Resposta:
 }
 ```
 
-#### Exemplo de requisição POST
+#### Exemplo de requisição POST com texto único
 ```json
 POST /filter
 {
   "text": "banana laranja",
   "extras": ["banana", "laranja"],
   "fill_char": "#"
+}
+```
+Resposta:
+```json
+{
+  "results": {
+    "original_text": "banana laranja",
+    "filtered_text": "##### ######",
+    "isFiltered": true,
+    "words_found": ["banana", "laranja"]
+  },
+  "lang": "pt-br",
+  "fill_char": "#",
+  "fill_word": null,
+  "extra_words": ["banana", "laranja"]
+}
+```
+
+#### Exemplo de requisição POST com múltiplos textos
+```json
+POST /filter
+{
+  "text": [
+    "primeiro texto com palavrão",
+    "segundo texto limpo",
+    "terceiro com banana"
+  ],
+  "extras": ["banana"],
+  "fill_char": "#"
+}
+```
+Resposta:
+```json
+{
+  "results": [
+    {
+      "original_text": "primeiro texto com palavrão",
+      "filtered_text": "primeiro texto com ########",
+      "isFiltered": true,
+      "words_found": ["palavrão"]
+    },
+    {
+      "original_text": "segundo texto limpo",
+      "filtered_text": "segundo texto limpo",
+      "isFiltered": false,
+      "words_found": []
+    },
+    {
+      "original_text": "terceiro com banana",
+      "filtered_text": "terceiro com #####",
+      "isFiltered": true,
+      "words_found": ["banana"]
+    }
+  ],
+  "lang": "pt-br",
+  "fill_char": "#",
+  "fill_word": null,
+  "extra_words": ["banana"]
 }
 ```
 
@@ -96,8 +154,29 @@ POST /filter
 Resposta:
 ```json
 {
-  "suported_lang": ["pt-br", "en-us", "es-es", "fr-fr", "de-de"],
-  "default_lang": "pt-br"
+    "languages": [
+        {
+            "code": "pt-br",
+            "name": "Português (Brasil)"
+        },
+        {
+            "code": "en-us",
+            "name": "English (USA)"
+        },
+        {
+            "code": "es-es",
+            "name": "Español (España)"
+        },
+        {
+            "code": "fr-fr",
+            "name": "Français (France)"
+        },
+        {
+            "code": "de-de",
+            "name": "Deutsch (Deutschland)"
+        }
+    ],
+    "default_lang": "en-us"
 }
 ```
 
