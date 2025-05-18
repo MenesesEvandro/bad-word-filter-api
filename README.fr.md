@@ -1,6 +1,10 @@
-# Bad Word Filter API
+# [🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
 
-[🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
+Bad Word Filter est un service web simple, multilingue et gratuit pour filtrer et supprimer les grossièretés, obscénités et autres textes indésirables.
+
+## Installation via npmord Filter API
+
+[🇧🇷 Português](README.pt.md) | [🇺🇸 English](README.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
 
 Bad Word Filter est un service web simple et gratuit pour filtrer et supprimer les grossièretés, obscénités et autres textes indésirables.
 
