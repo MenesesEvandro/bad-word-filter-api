@@ -38,7 +38,9 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^2.2.0",
-    "express": "^5.1.0"
+    "compression": "^1.8.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",

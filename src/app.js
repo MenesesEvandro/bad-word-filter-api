@@ -3,6 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 
 // Create the Express application
 const app = express();
@@ -11,6 +13,23 @@ const port = process.env.PORT || 3000;
 
 // Middleware to allow the API to understand JSON in request bodies
 app.use(bodyParser.json());
+
+// Middleware de compressão para todas as respostas
+app.use(compression());
+
+// Middleware de rate limiting to avoid abuse
+// This is a simple rate limiter to prevent abuse of the API
+const isTestEnv = process.env.NODE_ENV === 'test';
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: isTestEnv ? 10000 : 200, // limit for test environment
+    message: {
+        error: 'Too many requests from this IP, please try again later.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+app.use(limiter);
 
 // Default language if none is specified or the specified one is not supported
 const DEFAULT_LANGUAGE = "en";
@@ -212,9 +231,31 @@ function validateInput(text, fill_char, fill_word, profanityList, messages) {
     }
 }
 
+// Simple cache to store results
+// This is a simple in-memory cache. In a production environment, consider using a more robust solution like Redis.
+const resultCache = new Map();
+const RESULT_CACHE_LIMIT = 200;
+
+function getCacheKey({ texts, language, fill_char, fill_word, extras }) {
+    return JSON.stringify({ texts, language, fill_char, fill_word, extras });
+}
+
+function setResultCache(key, value) {
+    if (resultCache.size >= RESULT_CACHE_LIMIT) {
+        // Remove o item mais antigo
+        const firstKey = resultCache.keys().next().value;
+        resultCache.delete(firstKey);
+    }
+    resultCache.set(key, value);
+}
+
 // Shared handler for GET and POST
 function filterHandler(req, res) {
     const { texts, language, fill_char, fill_word, extras } = extractParams(req);
+    const cacheKey = getCacheKey({ texts, language, fill_char, fill_word, extras });
+    if (resultCache.has(cacheKey)) {
+        return res.status(200).json(resultCache.get(cacheKey));
+    }
     const requestedLanguage = typeof language === 'string' ? language.toLowerCase() : DEFAULT_LANGUAGE;
     const languageFile = loadLanguageFile(requestedLanguage);
     const defaultLangFile = loadLanguageFile(DEFAULT_LANGUAGE);
@@ -287,7 +328,7 @@ function filterHandler(req, res) {
         extra_words: extras
     };
     if (warning) response.warning = warning;
-    
+    setResultCache(cacheKey, response);
     res.status(200).json(response);
 }
 
