@@ -128,17 +128,29 @@ function loadLanguageFile(language) {
  * @param {string[]} profanityList - List of words to filter
  * @param {string} fill_char - Character to use for replacement
  * @param {string|null} fill_word - Word to use for replacement
- * @returns {Object} Filtered text result
+ * @param {string[]} safeWords - List of words that should never be filtered
+ * @returns {Object} Filtered text result with statistics
  */
-function processText(text, profanityList, fill_char, fill_word, langCode = '') {
+function processText(text, profanityList, fill_char, fill_word, langCode = '', safeWords = []) {
     const currentRegex = buildProfanityRegex(profanityList, langCode);
     if (!currentRegex) {
         return {
             filtered_text: text,
             isFiltered: false,
-            words_found: []
+            words_found: [],
+            stats: {
+                total_words: text.trim().split(/\s+/).length,
+                total_characters: text.length,
+                filtered_words: 0,
+                filtered_characters: 0,
+                filter_ratio: 0,
+                safe_words_used: 0
+            }
         };
     }
+
+    // Normalize safe words for comparison
+    const normalizedSafeWords = new Set(safeWords.map(word => normalizeText(word)));
 
     let filteredText = text;
     const foundWords = new Set();
@@ -149,6 +161,12 @@ function processText(text, profanityList, fill_char, fill_word, langCode = '') {
     let match;
     while ((match = currentRegex.exec(normalizedText)) !== null) {
         const normalizedWord = match[0];
+        
+        // Skip if the word is in the safe words list
+        if (normalizedSafeWords.has(normalizedWord)) {
+            continue;
+        }
+        
         const startPos = match.index;
         const endPos = startPos + normalizedWord.length;
         
@@ -168,18 +186,36 @@ function processText(text, profanityList, fill_char, fill_word, langCode = '') {
     // Sort matches by position in reverse order to replace from end to start
     matches.sort((a, b) => b.start - a.start);
 
+    let totalFiltered = 0;
     // Replace each match in the original text
     for (const match of matches) {
         const before = filteredText.slice(0, match.start);
         const after = filteredText.slice(match.end);
         const replacement = fill_word || fill_char.repeat(match.original.length);
         filteredText = before + replacement + after;
+        totalFiltered += match.original.length;
     }
+
+    // Calculate detailed statistics
+    const words = text.trim().split(/\s+/);
+    const filteredWords = matches.length;
+    const safeWordsUsed = words.filter(word => normalizedSafeWords.has(normalizeText(word))).length;
+
+    const stats = {
+        total_words: words.length,
+        total_characters: text.length,
+        filtered_words: filteredWords,
+        filtered_characters: totalFiltered,
+        filter_ratio: text.length > 0 ? totalFiltered / text.length : 0,
+        words_ratio: words.length > 0 ? filteredWords / words.length : 0,
+        safe_words_used: safeWordsUsed
+    };
 
     return {
         filtered_text: filteredText,
         isFiltered: foundWords.size > 0,
-        words_found: Array.from(foundWords)
+        words_found: Array.from(foundWords),
+        stats: stats
     };
 }
 
@@ -201,6 +237,10 @@ function extractParams(req) {
     const fill_char = (isGet ? req.query.fill_char : req.body.fill_char) || REPLACEMENT_CHAR;
     const fill_word = (isGet ? req.query.fill_word : req.body.fill_word) || null;
     let extras = isGet ? req.query.extras : req.body.extras;
+    let safeWords = isGet ? req.query.safe_words : req.body.safe_words;
+    const includeStats = isGet ? 
+        req.query.include_stats === 'true' : 
+        req.body.include_stats === true;
     
     if (typeof extras === 'string') {
         extras = extras.split(',').map(p => p.trim()).filter(Boolean);
@@ -208,8 +248,14 @@ function extractParams(req) {
         extras = [];
     }
     extras = extras.slice(0, EXTRA_WORDS_LIMIT);
+
+    if (typeof safeWords === 'string') {
+        safeWords = safeWords.split(',').map(w => w.trim()).filter(Boolean);
+    } else if (!Array.isArray(safeWords)) {
+        safeWords = [];
+    }
     
-    return { texts, language, fill_char, fill_word, extras };
+    return { texts, language, fill_char, fill_word, extras, safeWords, includeStats };
 }
 
 function validateInput(text, fill_char, fill_word, profanityList, messages) {
@@ -236,8 +282,8 @@ function validateInput(text, fill_char, fill_word, profanityList, messages) {
 const resultCache = new Map();
 const RESULT_CACHE_LIMIT = 200;
 
-function getCacheKey({ texts, language, fill_char, fill_word, extras }) {
-    return JSON.stringify({ texts, language, fill_char, fill_word, extras });
+function getCacheKey({ texts, language, fill_char, fill_word, extras, safeWords, includeStats }) {
+    return JSON.stringify({ texts, language, fill_char, fill_word, extras, safeWords, includeStats });
 }
 
 function setResultCache(key, value) {
@@ -251,11 +297,12 @@ function setResultCache(key, value) {
 
 // Shared handler for GET and POST
 function filterHandler(req, res) {
-    const { texts, language, fill_char, fill_word, extras } = extractParams(req);
-    const cacheKey = getCacheKey({ texts, language, fill_char, fill_word, extras });
+    const { texts, language, fill_char, fill_word, extras, safeWords, includeStats } = extractParams(req);
+    const cacheKey = getCacheKey({ texts, language, fill_char, fill_word, extras, safeWords, includeStats });
     if (resultCache.has(cacheKey)) {
         return res.status(200).json(resultCache.get(cacheKey));
     }
+
     const requestedLanguage = typeof language === 'string' ? language.toLowerCase() : DEFAULT_LANGUAGE;
     const languageFile = loadLanguageFile(requestedLanguage);
     const defaultLangFile = loadLanguageFile(DEFAULT_LANGUAGE);
@@ -298,25 +345,48 @@ function filterHandler(req, res) {
             original_text: text,
             filtered_text: text,
             isFiltered: false,
-            words_found: []
+            words_found: [],
+            ...(includeStats && {
+                stats: {
+                    total_words: text.trim().split(/\s+/).length,
+                    total_characters: text.length,
+                    filtered_words: 0,
+                    filtered_characters: 0,
+                    filter_ratio: 0,
+                    words_ratio: 0,
+                    safe_words_used: 0
+                }
+            })
         }));
+
         const response = {
             results: texts.length === 1 ? emptyResult[0] : emptyResult,
             lang: selectedLanguage
         };
+        
+        if (includeStats) {
+            response.aggregate_stats = calculateAggregateStats(emptyResult);
+        }
+        
         if (warning) response.warning = warning;
         return res.status(200).json(response);
     }
 
     // Process each text
     const results = texts.map(text => {
-        const processed = processText(text, currentProfanityList, fill_char, fill_word, selectedLanguage);
-        return {
+        const processed = processText(text, currentProfanityList, fill_char, fill_word, selectedLanguage, safeWords);
+        const result = {
             original_text: text,
             filtered_text: processed.filtered_text,
             isFiltered: processed.isFiltered,
             words_found: processed.words_found
         };
+
+        if (includeStats) {
+            result.stats = processed.stats;
+        }
+
+        return result;
     });
 
     // Return single result or array depending on input
@@ -325,8 +395,14 @@ function filterHandler(req, res) {
         lang: selectedLanguage,
         fill_char,
         fill_word,
-        extra_words: extras
+        extra_words: extras,
+        safe_words: safeWords
     };
+
+    if (includeStats) {
+        response.aggregate_stats = calculateAggregateStats(results);
+    }
+    
     if (warning) response.warning = warning;
     setResultCache(cacheKey, response);
     res.status(200).json(response);
@@ -386,3 +462,37 @@ if (require.main === module) {
 }
 
 module.exports = app;
+
+/**
+ * Calculate aggregate statistics for multiple processed texts
+ * @param {Array} results Array of processed text results
+ * @returns {Object} Aggregate statistics
+ */
+function calculateAggregateStats(results) {
+    if (!Array.isArray(results)) {
+        results = [results];
+    }
+
+    return results.reduce((agg, result) => {
+        const stats = result.stats;
+        return {
+            total_words: agg.total_words + stats.total_words,
+            total_characters: agg.total_characters + stats.total_characters,
+            filtered_words: agg.filtered_words + stats.filtered_words,
+            filtered_characters: agg.filtered_characters + stats.filtered_characters,
+            safe_words_used: agg.safe_words_used + stats.safe_words_used,
+            average_filter_ratio: results.length > 0 ? 
+                results.reduce((sum, r) => sum + r.stats.filter_ratio, 0) / results.length : 0,
+            average_words_ratio: results.length > 0 ? 
+                results.reduce((sum, r) => sum + r.stats.words_ratio, 0) / results.length : 0
+        };
+    }, {
+        total_words: 0,
+        total_characters: 0,
+        filtered_words: 0,
+        filtered_characters: 0,
+        safe_words_used: 0,
+        average_filter_ratio: 0,
+        average_words_ratio: 0
+    });
+}
