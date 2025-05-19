@@ -26,6 +26,10 @@ module.exports = {
     messages: {
         required: "Il parametro o campo 'text' è obbligatorio.",
         string: "Il valore di 'text' deve essere una stringa.",
-        warning: (reqLang, defLang) => `La lingua richiesta '${reqLang}' non è disponibile. È stata utilizzata la lingua predefinita '${defLang}'.`
+        warning: (reqLang, defLang) => `La lingua richiesta '${reqLang}' non è disponibile. È stata utilizzata la lingua predefinita '${defLang}'.`,
+        input_required: "Il testo di input deve essere una stringa non vuota.",
+        input_too_long: "Il testo di input supera la lunghezza massima di {max} caratteri.",
+        fill_char_invalid: "Il carattere di riempimento deve essere un solo carattere.",
+        fill_word_profane: "La parola di riempimento non può contenere parole vietate."
     }
 };

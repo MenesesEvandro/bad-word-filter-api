@@ -88,7 +88,9 @@ describe('API Performance Tests', () => {
 
     // Test with long text
     test('Should process very long text efficiently', async () => {
-        const longText = 'this is bullshit '.repeat(1000); // Creates a very long text
+        // Adjust the length to be less than 10,000 characters
+        const LONG_TEXT_LENGTH = 9500; // secure the text is less than 10.000 characters
+        const longText = 'this is bullshit '.repeat(Math.floor(LONG_TEXT_LENGTH / 17));
 
         const startTime = Date.now();
         const res = await request(app)
@@ -215,28 +217,25 @@ describe('API Performance Tests', () => {
     // Test memory cleanup
     test('Should properly clean up memory after large requests', async () => {
         const initialMemory = process.memoryUsage().heapUsed;
-        
-        // Make several large requests
+        // Create a large text input
+        const safeText = 'test text with bad words ';
+        const repeatCount = Math.floor(9500 / safeText.length); // secure the text is less than 10.000 characters
+        const largeText = Array.from({ length: repeatCount }, () => safeText).join('');
         for (let i = 0; i < 5; i++) {
-            const largeText = Array.from({ length: 1000 }, () => 'test text with bad words').join(' ');
             const res = await request(app)
                 .post('/filter')
                 .send({
                     text: largeText,
                     lang: 'en'
                 });
-            
             expect(res.status).toBe(200);
         }
-
         // Force garbage collection if possible
         if (global.gc) {
             global.gc();
         }
-
         const finalMemory = process.memoryUsage().heapUsed;
         const memoryIncrease = finalMemory - initialMemory;
-        
         // Memory increase should be reasonable (less than 50MB)
         expect(memoryIncrease).toBeLessThan(50 * 1024 * 1024);
     });

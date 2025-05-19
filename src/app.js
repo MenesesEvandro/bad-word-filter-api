@@ -21,6 +21,9 @@ const REPLACEMENT_CHAR = '*';
 // Limit for extra words
 const EXTRA_WORDS_LIMIT = 10;
 
+// Maximum limit for input text length
+const MAX_TEXT_LENGTH = 10000;
+
 /**
  * Removes accents and special characters from a string
  * @param {string} text - The text to be normalized
@@ -190,6 +193,25 @@ function extractParams(req) {
     return { texts, language, fill_char, fill_word, extras };
 }
 
+function validateInput(text, fill_char, fill_word, profanityList, messages) {
+    if (typeof text !== 'string' || text.length === 0) {
+        throw new Error(messages.input_required);
+    }
+    if (text.length > MAX_TEXT_LENGTH) {
+        throw new Error(messages.input_too_long?.replace('{max}', MAX_TEXT_LENGTH));
+    }
+    if (fill_char && fill_char.length !== 1) {
+        throw new Error(messages.fill_char_invalid);
+    }
+    if (fill_word) {
+        const normalizedFillWord = normalizeText(fill_word);
+        const hasProfanity = profanityList.some(word => normalizedFillWord.includes(normalizeText(word)));
+        if (hasProfanity) {
+            throw new Error(messages.fill_word_profane);
+        }
+    }
+}
+
 // Shared handler for GET and POST
 function filterHandler(req, res) {
     const { texts, language, fill_char, fill_word, extras } = extractParams(req);
@@ -202,8 +224,15 @@ function filterHandler(req, res) {
     const messages = selectedLangFile.messages;
 
     // Validate input
-    if (!texts || texts.length === 0) {
-        return res.status(400).json({ error: messages.required });
+    try {
+        if (!texts || texts.length === 0) {
+            return res.status(400).json({ error: messages.required });
+        }
+        for (const text of texts) {
+            validateInput(text, fill_char, fill_word, selectedLangFile.profanityList || [], messages);
+        }
+    } catch (err) {
+        return res.status(400).json({ error: err.message });
     }
 
     let warning = undefined;

@@ -31,6 +31,10 @@ module.exports = {
     messages: {
         required: "Le paramètre ou le champ 'text' est requis.",
         string: "La valeur de 'text' doit être une chaîne de caractères.",
-        warning: (reqLang, defLang) => `La langue demandée '${reqLang}' n'est pas disponible. La langue par défaut '${defLang}' a été utilisée.`
+        warning: (reqLang, defLang) => `La langue demandée '${reqLang}' n'est pas disponible. La langue par défaut '${defLang}' a été utilisée.`,
+        input_required: "Le texte d'entrée doit être une chaîne non vide.",
+        input_too_long: "Le texte d'entrée dépasse la longueur maximale de {max} caractères.",
+        fill_char_invalid: "Le caractère de remplacement doit être un seul caractère.",
+        fill_word_profane: "Le mot de remplacement ne doit pas contenir de mots interdits."
     }
 };

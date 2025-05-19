@@ -32,8 +32,12 @@ module.exports = {
         "verdammt", "verdammte"
     ],
     messages: {
-        required: "Das Feld oder der Parameter 'text' ist erforderlich.",
+        required: "Parameter oder Feld 'text' ist erforderlich.",
         string: "Der Wert von 'text' muss eine Zeichenkette sein.",
-        warning: (reqLang, defLang) => `Die angeforderte Sprache '${reqLang}' ist nicht verfügbar. Die Standardsprache '${defLang}' wurde verwendet.`
+        warning: (reqLang, defLang) => `Die angeforderte Sprache '${reqLang}' ist nicht verfügbar. Die Standardsprache '${defLang}' wurde verwendet.`,
+        input_required: "Der Eingabetext muss eine nicht-leere Zeichenkette sein.",
+        input_too_long: "Der Eingabetext überschreitet die maximale Länge von {max} Zeichen.",
+        fill_char_invalid: "Das Ersetzungszeichen muss ein einzelnes Zeichen sein.",
+        fill_word_profane: "Das Ersetzungswort darf keine Schimpfwörter enthalten."
     }
 };
