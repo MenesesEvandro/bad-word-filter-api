@@ -6,20 +6,48 @@ const app = require('../src/app');
 app.use(bodyParser.json());
 
 describe('API Performance Tests', () => {
+    // Funções auxiliares para medição
+    const measureMemory = () => {
+        const used = process.memoryUsage();
+        return {
+            heapUsed: Math.round(used.heapUsed / 1024 / 1024 * 100) / 100,
+            heapTotal: Math.round(used.heapTotal / 1024 / 1024 * 100) / 100,
+            rss: Math.round(used.rss / 1024 / 1024 * 100) / 100
+        };
+    };
+
+    const measurePerformance = async (fn) => {
+        const startMemory = measureMemory();
+        const startTime = Date.now();
+        const result = await fn();
+        const endTime = Date.now();
+        const endMemory = measureMemory();
+        
+        return {
+            responseTime: endTime - startTime,
+            memoryDelta: {
+                heapUsed: endMemory.heapUsed - startMemory.heapUsed,
+                heapTotal: endMemory.heapTotal - startMemory.heapTotal,
+                rss: endMemory.rss - startMemory.rss
+            },
+            result
+        };
+    };
+
     // Test response time for single text
     test('Single text processing should respond within 100ms', async () => {
-        const startTime = Date.now();
-        const res = await request(app)
-            .post('/filter')
-            .send({
-                text: 'this is a test text with some bad words like bullshit and damn',
-                lang: 'en'
-            });
-        const endTime = Date.now();
-        const responseTime = endTime - startTime;
+        const { responseTime, memoryDelta, result } = await measurePerformance(async () =>
+            request(app)
+                .post('/filter')
+                .send({
+                    text: 'this is a test text with some bad words like bullshit and damn',
+                    lang: 'en'
+                })
+        );
 
-        expect(res.status).toBe(200);
-        expect(responseTime).toBeLessThan(100); // Should respond in less than 100ms
+        expect(result.status).toBe(200);
+        expect(responseTime).toBeLessThan(100);
+        expect(Math.abs(memoryDelta.heapUsed)).toBeLessThan(10); // Menos de 10MB de variação
     });
 
     // Test response time for array of texts
@@ -41,6 +69,55 @@ describe('API Performance Tests', () => {
         expect(res.status).toBe(200);
         expect(responseTime).toBeLessThan(1000); // Should process in less than 1 second
         expect(res.body.results).toHaveLength(100);
+    });
+
+    // Test regex performance with complex patterns
+    test('Should handle complex regex patterns efficiently', async () => {
+        const complexText = Array(100).fill()
+            .map((_, i) => `test${i} with (complex) [patterns] {and} <symbols> ~!@#$%^&*`)
+            .join(' ');
+
+        const { responseTime, result } = await measurePerformance(async () =>
+            request(app)
+                .post('/filter')
+                .send({
+                    text: complexText,
+                    extras: ['test[0-9]+', '\\(.*\\)', '\\[.*\\]'],
+                    lang: 'en'
+                })
+        );
+
+        expect(result.status).toBe(200);
+        expect(responseTime).toBeLessThan(200);
+    });
+
+    // Test multi-language performance
+    test('Should maintain performance across different languages', async () => {
+        const languages = ['en', 'pt-br', 'es', 'fr', 'de', 'it'];
+        const results = [];
+
+        for (const lang of languages) {
+            const { responseTime, result } = await measurePerformance(async () =>
+                request(app)
+                    .post('/filter')
+                    .send({
+                        text: 'test text with badwords',
+                        lang,
+                        include_stats: true
+                    })
+            );
+
+            results.push({ lang, responseTime, status: result.status });
+            expect(result.status).toBe(200);
+        }
+
+        // Verificar variação de performance entre idiomas
+        const times = results.map(r => r.responseTime);
+        const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
+        const maxVariation = Math.max(...times) - Math.min(...times);
+        
+        expect(avgTime).toBeLessThan(100);
+        expect(maxVariation).toBeLessThan(50); // Variação máxima de 50ms entre idiomas
     });
 
     // Test concurrent requests
@@ -160,30 +237,6 @@ describe('API Performance Tests', () => {
         expect(averageResponseTime).toBeLessThan(1000); // Average should be under 1 second
     });
 
-    // Test multiple languages concurrently
-    test('Should handle concurrent requests in different languages', async () => {
-        const languages = ['en', 'pt-br', 'es', 'fr', 'de'];
-        const requests = languages.flatMap(lang =>
-            Array.from({ length: 10 }, () =>
-                request(app)
-                    .post('/filter')
-                    .send({
-                        text: 'test text',
-                        lang,
-                        extras: ['test1', 'test2']
-                    })
-            )
-        );
-
-        const startTime = Date.now();
-        const results = await Promise.all(requests);
-        const endTime = Date.now();
-        const totalTime = endTime - startTime;
-
-        expect(totalTime).toBeLessThan(2000); // All languages should process within 2 seconds
-        results.forEach(res => expect(res.status).toBe(200));
-    });
-
     // Test rapid consecutive requests
     test('Should handle rapid consecutive requests', async () => {
         const numberOfRequests = 20;
@@ -214,29 +267,50 @@ describe('API Performance Tests', () => {
         }
     });
 
-    // Test memory cleanup
-    test('Should properly clean up memory after large requests', async () => {
-        const initialMemory = process.memoryUsage().heapUsed;
-        // Create a large text input
-        const safeText = 'test text with bad words ';
-        const repeatCount = Math.floor(9500 / safeText.length); // secure the text is less than 10.000 characters
-        const largeText = Array.from({ length: repeatCount }, () => safeText).join('');
-        for (let i = 0; i < 5; i++) {
-            const res = await request(app)
+    // Test cache efficiency
+    test('Cache should improve performance significantly', async () => {
+        const payload = {
+            text: 'test with badwords for cache',
+            lang: 'en'
+        };
+
+        // Primeira requisição (sem cache)
+        const uncached = await measurePerformance(async () =>
+            request(app)
                 .post('/filter')
-                .send({
-                    text: largeText,
-                    lang: 'en'
-                });
-            expect(res.status).toBe(200);
-        }
-        // Force garbage collection if possible
-        if (global.gc) {
-            global.gc();
-        }
-        const finalMemory = process.memoryUsage().heapUsed;
-        const memoryIncrease = finalMemory - initialMemory;
-        // Memory increase should be reasonable (less than 50MB)
-        expect(memoryIncrease).toBeLessThan(50 * 1024 * 1024);
+                .send(payload)
+        );
+
+        // Segunda requisição (com cache)
+        const cached = await measurePerformance(async () =>
+            request(app)
+                .post('/filter')
+                .send(payload)
+        );
+
+        expect(cached.responseTime).toBeLessThan(uncached.responseTime * 0.5); // Cache deve ser 50% mais rápido
     });
+
+    // Test memory cleanup
+    test('Should cleanup memory after large requests', async () => {
+        const initialMemory = measureMemory();
+        
+        // Fazer uma requisição grande
+        const largeTexts = Array(500).fill('test with long content for memory analysis');
+        await request(app)
+            .post('/filter')
+            .send({
+                text: largeTexts,
+                lang: 'en'
+            });
+
+        // Esperar o GC atuar
+        global.gc && global.gc();
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const finalMemory = measureMemory();
+        const memoryDelta = finalMemory.heapUsed - initialMemory.heapUsed;
+        
+        expect(memoryDelta).toBeLessThan(50); // Menos de 50MB de diferença após GC
+    }, 10000);
 });
