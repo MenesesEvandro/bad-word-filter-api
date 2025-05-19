@@ -193,3 +193,109 @@ npm test
 
 ## License
 MIT
+
+---
+
+## Usage examples with different frameworks
+
+### Node.js (axios)
+```js
+const axios = require('axios');
+
+// Simple filter example
+axios.get('http://localhost:3000/filter', {
+  params: {
+    text: 'badword here',
+    lang: 'en',
+    fill_char: '#'
+  }
+}).then(res => console.log(res.data));
+
+// Example with safe_words and statistics
+axios.post('http://localhost:3000/filter', {
+  text: 'banana and orange are fruits',
+  extras: ['banana', 'orange'],
+  safe_words: ['banana'],
+  include_stats: true
+}).then(res => console.log(res.data));
+```
+
+### Python (requests)
+```python
+import requests
+
+# Simple filter
+resp = requests.get('http://localhost:3000/filter', params={
+    'text': 'badword here',
+    'lang': 'en',
+    'fill_char': '#'
+})
+print(resp.json())
+
+# With safe_words and statistics
+resp = requests.post('http://localhost:3000/filter', json={
+    'text': 'banana and orange are fruits',
+    'extras': ['banana', 'orange'],
+    'safe_words': ['banana'],
+    'include_stats': True
+})
+print(resp.json())
+```
+
+### cURL
+```bash
+curl "http://localhost:3000/filter?text=badword%20here&lang=en&fill_char=#"
+
+curl -X POST http://localhost:3000/filter \
+  -H "Content-Type: application/json" \
+  -d '{"text": "banana and orange are fruits", "extras": ["banana", "orange"], "safe_words": ["banana"], "include_stats": true}'
+```
+
+## Detailed response example
+
+### With safe_words and include_stats
+```json
+{
+  "results": {
+    "original_text": "banana and orange are fruits",
+    "filtered_text": "banana and ###### are fruits",
+    "isFiltered": true,
+    "words_found": ["orange"],
+    "stats": {
+      "total_words": 5,
+      "total_characters": 29,
+      "filtered_words": 1,
+      "filtered_characters": 6,
+      "filter_ratio": 0.207,
+      "words_ratio": 0.2,
+      "safe_words_used": 1
+    }
+  },
+  "lang": "en",
+  "fill_char": "*",
+  "fill_word": null,
+  "extra_words": ["banana", "orange"],
+  "safe_words": ["banana"],
+  "aggregate_stats": {
+    "total_words": 5,
+    "total_characters": 29,
+    "filtered_words": 1,
+    "filtered_characters": 6,
+    "safe_words_used": 1,
+    "average_filter_ratio": 0.207,
+    "average_words_ratio": 0.2
+  }
+}
+```
+
+## How to contribute with new languages
+
+1. Create a new file in `src/lang/` with the language code, e.g., `xx.js`.
+2. Export an object with the following properties:
+   - `name`: Language name
+   - `profanityList`: Array of profane words
+   - `messages`: Error and warning messages (see examples in existing files)
+3. Follow the pattern of existing files (e.g., `pt-br.js`, `en.js`).
+4. Open a PR or send your suggestion!
+
+---

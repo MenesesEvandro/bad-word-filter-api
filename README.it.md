@@ -196,3 +196,109 @@ npm test
 
 ## Licenza
 MIT
+
+---
+
+## Esempi di utilizzo con diversi framework
+
+### Node.js (axios)
+```js
+const axios = require('axios');
+
+// Esempio di filtro semplice
+axios.get('http://localhost:3000/filter', {
+  params: {
+    text: 'parolaccia qui',
+    lang: 'it',
+    fill_char: '#'
+  }
+}).then(res => console.log(res.data));
+
+// Esempio con parole sicure e statistiche
+axios.post('http://localhost:3000/filter', {
+  text: 'banana e arancia sono frutti',
+  extras: ['banana', 'arancia'],
+  safe_words: ['banana'],
+  include_stats: true
+}).then(res => console.log(res.data));
+```
+
+### Python (requests)
+```python
+import requests
+
+# Filtro semplice
+resp = requests.get('http://localhost:3000/filter', params={
+    'text': 'parolaccia qui',
+    'lang': 'it',
+    'fill_char': '#'
+})
+print(resp.json())
+
+# Con parole sicure e statistiche
+resp = requests.post('http://localhost:3000/filter', json={
+    'text': 'banana e arancia sono frutti',
+    'extras': ['banana', 'arancia'],
+    'safe_words': ['banana'],
+    'include_stats': True
+})
+print(resp.json())
+```
+
+### cURL
+```bash
+curl "http://localhost:3000/filter?text=parolaccia%20qui&lang=it&fill_char=#"
+
+curl -X POST http://localhost:3000/filter \
+  -H "Content-Type: application/json" \
+  -d '{"text": "banana e arancia sono frutti", "extras": ["banana", "arancia"], "safe_words": ["banana"], "include_stats": true}'
+```
+
+## Esempio dettagliato di risposta
+
+### Con parole sicure e statistiche
+```json
+{
+  "results": {
+    "original_text": "banana e arancia sono frutti",
+    "filtered_text": "banana e ####### sono frutti",
+    "isFiltered": true,
+    "words_found": ["arancia"],
+    "stats": {
+      "total_words": 5,
+      "total_characters": 29,
+      "filtered_words": 1,
+      "filtered_characters": 7,
+      "filter_ratio": 0.241,
+      "words_ratio": 0.2,
+      "safe_words_used": 1
+    }
+  },
+  "lang": "it",
+  "fill_char": "*",
+  "fill_word": null,
+  "extra_words": ["banana", "arancia"],
+  "safe_words": ["banana"],
+  "aggregate_stats": {
+    "total_words": 5,
+    "total_characters": 29,
+    "filtered_words": 1,
+    "filtered_characters": 7,
+    "safe_words_used": 1,
+    "average_filter_ratio": 0.241,
+    "average_words_ratio": 0.2
+  }
+}
+```
+
+## Come contribuire con nuove lingue
+
+1. Crea un nuovo file in `src/lang/` con il codice della lingua, ad esempio, `xx.js`.
+2. Esporta un oggetto con le seguenti proprietà:
+   - `name`: Nome della lingua
+   - `profanityList`: Array di parole proibite
+   - `messages`: Messaggi di errore e avviso (vedi esempi nei file esistenti)
+3. Segui il modello dei file esistenti (es: `pt-br.js`, `en.js`).
+4. Fai una PR o invia il tuo suggerimento!
+
+---

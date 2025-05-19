@@ -198,3 +198,109 @@ npm test
 
 ## Lizenz
 MIT
+
+---
+
+## Verwendungsbeispiele mit verschiedenen Frameworks
+
+### Node.js (axios)
+```js
+const axios = require('axios');
+
+// Einfaches Filterbeispiel
+axios.get('http://localhost:3000/filter', {
+  params: {
+    text: 'schimpfwort hier',
+    lang: 'de',
+    fill_char: '#'
+  }
+}).then(res => console.log(res.data));
+
+// Beispiel mit sicheren Wörtern und Statistiken
+axios.post('http://localhost:3000/filter', {
+  text: 'banane und orange sind früchte',
+  extras: ['banane', 'orange'],
+  safe_words: ['banane'],
+  include_stats: true
+}).then(res => console.log(res.data));
+```
+
+### Python (requests)
+```python
+import requests
+
+# Einfacher Filter
+resp = requests.get('http://localhost:3000/filter', params={
+    'text': 'schimpfwort hier',
+    'lang': 'de',
+    'fill_char': '#'
+})
+print(resp.json())
+
+# Mit sicheren Wörtern und Statistiken
+resp = requests.post('http://localhost:3000/filter', json={
+    'text': 'banane und orange sind früchte',
+    'extras': ['banane', 'orange'],
+    'safe_words': ['banane'],
+    'include_stats': True
+})
+print(resp.json())
+```
+
+### cURL
+```bash
+curl "http://localhost:3000/filter?text=schimpfwort%20hier&lang=de&fill_char=#"
+
+curl -X POST http://localhost:3000/filter \
+  -H "Content-Type: application/json" \
+  -d '{"text": "banane und orange sind früchte", "extras": ["banane", "orange"], "safe_words": ["banane"], "include_stats": true}'
+```
+
+## Detailliertes Antwortbeispiel
+
+### Mit sicheren Wörtern und Statistiken
+```json
+{
+  "results": {
+    "original_text": "banane und orange sind früchte",
+    "filtered_text": "banane und ###### sind früchte",
+    "isFiltered": true,
+    "words_found": ["orange"],
+    "stats": {
+      "total_words": 5,
+      "total_characters": 31,
+      "filtered_words": 1,
+      "filtered_characters": 6,
+      "filter_ratio": 0.194,
+      "words_ratio": 0.2,
+      "safe_words_used": 1
+    }
+  },
+  "lang": "de",
+  "fill_char": "*",
+  "fill_word": null,
+  "extra_words": ["banane", "orange"],
+  "safe_words": ["banane"],
+  "aggregate_stats": {
+    "total_words": 5,
+    "total_characters": 31,
+    "filtered_words": 1,
+    "filtered_characters": 6,
+    "safe_words_used": 1,
+    "average_filter_ratio": 0.194,
+    "average_words_ratio": 0.2
+  }
+}
+```
+
+## Wie man neue Sprachen beiträgt
+
+1. Erstellen Sie eine neue Datei in `src/lang/` mit dem Sprachcode, z.B. `xx.js`.
+2. Exportieren Sie ein Objekt mit den folgenden Eigenschaften:
+   - `name`: Name der Sprache
+   - `profanityList`: Array mit verbotenen Wörtern
+   - `messages`: Fehler- und Warnmeldungen (siehe Beispiele in vorhandenen Dateien)
+3. Folgen Sie dem Muster der vorhandenen Dateien (z.B. `pt-br.js`, `en.js`).
+4. Erstellen Sie einen PR oder senden Sie Ihren Vorschlag!
+
+---

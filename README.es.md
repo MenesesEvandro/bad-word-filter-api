@@ -198,3 +198,109 @@ npm test
 
 ## Licencia
 MIT
+
+---
+
+## Ejemplos de uso con diferentes frameworks
+
+### Node.js (axios)
+```js
+const axios = require('axios');
+
+// Ejemplo de filtro simple
+axios.get('http://localhost:3000/filter', {
+  params: {
+    text: 'palabra mala aquí',
+    lang: 'es',
+    fill_char: '#'
+  }
+}).then(res => console.log(res.data));
+
+// Ejemplo con palabras seguras y estadísticas
+axios.post('http://localhost:3000/filter', {
+  text: 'banana y naranja son frutas',
+  extras: ['banana', 'naranja'],
+  safe_words: ['banana'],
+  include_stats: true
+}).then(res => console.log(res.data));
+```
+
+### Python (requests)
+```python
+import requests
+
+# Filtro simple
+resp = requests.get('http://localhost:3000/filter', params={
+    'text': 'palabra mala aquí',
+    'lang': 'es',
+    'fill_char': '#'
+})
+print(resp.json())
+
+# Con palabras seguras y estadísticas
+resp = requests.post('http://localhost:3000/filter', json={
+    'text': 'banana y naranja son frutas',
+    'extras': ['banana', 'naranja'],
+    'safe_words': ['banana'],
+    'include_stats': True
+})
+print(resp.json())
+```
+
+### cURL
+```bash
+curl "http://localhost:3000/filter?text=palabra%20mala%20aquí&lang=es&fill_char=#"
+
+curl -X POST http://localhost:3000/filter \
+  -H "Content-Type: application/json" \
+  -d '{"text": "banana y naranja son frutas", "extras": ["banana", "naranja"], "safe_words": ["banana"], "include_stats": true}'
+```
+
+## Ejemplo detallado de respuesta
+
+### Con palabras seguras y estadísticas
+```json
+{
+  "results": {
+    "original_text": "banana y naranja son frutas",
+    "filtered_text": "banana y ###### son frutas",
+    "isFiltered": true,
+    "words_found": ["naranja"],
+    "stats": {
+      "total_words": 5,
+      "total_characters": 27,
+      "filtered_words": 1,
+      "filtered_characters": 6,
+      "filter_ratio": 0.222,
+      "words_ratio": 0.2,
+      "safe_words_used": 1
+    }
+  },
+  "lang": "es",
+  "fill_char": "*",
+  "fill_word": null,
+  "extra_words": ["banana", "naranja"],
+  "safe_words": ["banana"],
+  "aggregate_stats": {
+    "total_words": 5,
+    "total_characters": 27,
+    "filtered_words": 1,
+    "filtered_characters": 6,
+    "safe_words_used": 1,
+    "average_filter_ratio": 0.222,
+    "average_words_ratio": 0.2
+  }
+}
+```
+
+## Cómo contribuir con nuevos idiomas
+
+1. Crea un nuevo archivo en `src/lang/` con el código del idioma, por ejemplo, `xx.js`.
+2. Exporta un objeto con las siguientes propiedades:
+   - `name`: Nombre del idioma
+   - `profanityList`: Array de palabras prohibidas
+   - `messages`: Mensajes de error y advertencia (ver ejemplos en archivos existentes)
+3. Sigue el patrón de los archivos existentes (ej: `pt-br.js`, `en.js`).
+4. ¡Haz un PR o envía tu sugerencia!
+
+---
