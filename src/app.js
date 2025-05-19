@@ -53,6 +53,9 @@ function normalizeText(text) {
     return normalized;
 }
 
+// Cache for compiled regex patterns
+const regexCache = new Map();
+
 /**
  * Builds a regular expression to find any of the profanities in the list.
  * Uses \b to ensure only whole words are matched.
@@ -60,9 +63,16 @@ function normalizeText(text) {
  * @param {string[]} profanityList - The list of profanities for the selected language.
  * @returns {RegExp | null} - The compiled regular expression or null if the list is empty/invalid.
  */
-function buildProfanityRegex(profanityList) {
+function buildProfanityRegex(profanityList, langCode = '') {
     if (!profanityList || profanityList.length === 0) {
         return null;
+    }
+    // create a cache key based on the language code and the sorted list of profanities
+    // This ensures that the same list of profanities will always generate the same regex
+    // and avoids recompiling the regex for the same input
+    const cacheKey = langCode + '|' + [...profanityList].sort().join(',');
+    if (regexCache.has(cacheKey)) {
+        return regexCache.get(cacheKey);
     }
     // Escape regex special characters in the words and normalize them
     const escapedWords = profanityList.map(word => {
@@ -74,7 +84,9 @@ function buildProfanityRegex(profanityList) {
     
     // Create the regex pattern with word boundaries
     const pattern = `\\b(?:${escapedWords.join('|')})\\b`;
-    return new RegExp(pattern, 'giu'); // 'g' for global, 'i' for case-insensitive, 'u' for unicode
+    const regex = new RegExp(pattern, 'giu'); // 'g' for global, 'i' for case-insensitive, 'u' for unicode
+    regexCache.set(cacheKey, regex);
+    return regex;
 }
 
 // Function to dynamically load the language file for the requested language
@@ -96,8 +108,8 @@ function loadLanguageFile(language) {
  * @param {string|null} fill_word - Word to use for replacement
  * @returns {Object} Filtered text result
  */
-function processText(text, profanityList, fill_char, fill_word) {
-    const currentRegex = buildProfanityRegex(profanityList);
+function processText(text, profanityList, fill_char, fill_word, langCode = '') {
+    const currentRegex = buildProfanityRegex(profanityList, langCode);
     if (!currentRegex) {
         return {
             filtered_text: text,
@@ -228,7 +240,7 @@ function filterHandler(req, res) {
 
     // Process each text
     const results = texts.map(text => {
-        const processed = processText(text, currentProfanityList, fill_char, fill_word);
+        const processed = processText(text, currentProfanityList, fill_char, fill_word, selectedLanguage);
         return {
             original_text: text,
             filtered_text: processed.filtered_text,
