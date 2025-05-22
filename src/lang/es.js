@@ -1,4 +1,5 @@
 module.exports = {
+    name: 'Español (España)',
     profanityList: [
         "cabron", "cabrona", "cabrones", "cabronas",
         "puta", "putas", "putita", "putitas", "putona", "putonas",
@@ -34,7 +35,11 @@ module.exports = {
     ],
     messages: {
         required: "El parámetro o campo 'text' es obligatorio.",
-        string: "El valor de 'text' debe ser una cadena.",
-        warning: (reqLang, defLang) => `El idioma solicitado '${reqLang}' no está disponible. Se utilizó el idioma predeterminado '${defLang}'.`
+        string: "El valor de 'text' debe ser una cadena de texto.",
+        warning: (reqLang, defLang) => `El idioma solicitado '${reqLang}' no está disponible. Se utilizó el idioma predeterminado '${defLang}'.`,
+        input_required: "El texto de entrada debe ser una cadena no vacía.",
+        input_too_long: "El texto de entrada supera el tamaño máximo de {max} caracteres.",
+        fill_char_invalid: "El carácter de relleno debe ser un solo carácter.",
+        fill_word_profane: "La palabra de relleno no puede contener palabras prohibidas."
     }
 };

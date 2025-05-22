@@ -1,6 +1,14 @@
+[🇧🇷 Português](README.pt.md) | [🇺🇸 English](README.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md) | [🇮🇹 Italiano](README.it.md)
+
 # Bad Word Filter API
 
-[🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
+Bad Word Filter es un servicio web simple, multilingüe y gratuito para filtrar y eliminar palabrotas, obscenidades y otros textos no deseados.
+
+![NPM Version](https://img.shields.io/npm/v/%40menesesevandro%2Fbad-word-filter-api) ![NPM Unpacked Size](https://img.shields.io/npm/unpacked-size/%40menesesevandro%2Fbad-word-filter-api) ![Crates.io License](https://img.shields.io/crates/l/mit) ![GitHub last commit](https://img.shields.io/github/last-commit/menesesevandro/bad-word-filter-api)
+
+## Instalación vía npmord Filter API
+
+[🇧🇷 Português](README.pt.md) | [🇺🇸 English](README.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
 
 Bad Word Filter es un servicio web simple y gratuito para filtrar y eliminar palabrotas, obscenidades y otros textos no deseados.
 
@@ -24,7 +32,7 @@ npm start
 La API estará disponible en `http://localhost:3000`.
 
 ## Funcionalidades
-- Soporte para múltiples idiomas: pt-br, en-us, es-es, fr-fr, de-de
+- Soporte para múltiples idiomas: pt-br, en, es, fr, de, it
 - Sustitución de palabrotas por carácter personalizable o palabra fija
 - Soporta GET y POST
 - Añade palabras extra para filtrar
@@ -38,14 +46,14 @@ La API estará disponible en `http://localhost:3000`.
 
 #### Parámetros
 - `text` (string o array de strings, obligatorio): texto(s) a filtrar
-- `lang` (string, opcional): idioma (ej: pt-br, en-us, es-es, fr-fr, de-de). Por defecto: pt-br
+- `lang` (string, opcional): idioma (ej: pt-br, en, es, fr, de, it). Por defecto: en
 - `fill_char` (string, opcional): carácter para reemplazar cada letra de la palabrota. Por defecto: `*`
 - `fill_word` (string, opcional): palabra fija para reemplazar la palabrota (ej: "oculto"). Si se proporciona, tiene prioridad sobre `fill_char`.
 - `extras` (string o array, opcional): hasta 10 palabras extra para filtrar, separadas por comas o array
 
 #### Ejemplo de petición GET
 ```
-GET /filter?text=esto es mierda&lang=es-es&fill_char=#
+GET /filter?text=esto es mierda&lang=es&fill_char=#
 ```
 Respuesta:
 ```json
@@ -54,7 +62,7 @@ Respuesta:
   "filtered_text": "esto es #####",
   "isFiltered": true,
   "words_found": ["mierda"],
-  "lang": "es-es",
+  "lang": "es",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": []
@@ -63,7 +71,7 @@ Respuesta:
 
 #### Ejemplo con fill_word
 ```
-GET /filter?text=esto es mierda&lang=es-es&fill_word=[oculto]
+GET /filter?text=esto es mierda&lang=es&fill_word=[oculto]
 ```
 Respuesta:
 ```json
@@ -72,7 +80,7 @@ Respuesta:
   "filtered_text": "esto es [oculto]",
   "isFiltered": true,
   "words_found": ["mierda"],
-  "lang": "es-es",
+  "lang": "es",
   "fill_char": "*",
   "fill_word": "[oculto]",
   "extra_words": []
@@ -97,7 +105,7 @@ Respuesta:
     "isFiltered": true,
     "words_found": ["plátano", "naranja"]
   },
-  "lang": "es-es",
+  "lang": "es",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["plátano", "naranja"]
@@ -140,7 +148,7 @@ Respuesta:
       "words_found": ["plátano"]
     }
   ],
-  "lang": "es-es",
+  "lang": "es",
   "fill_char": "#",
   "fill_word": null,
   "extra_words": ["plátano"]
@@ -159,23 +167,23 @@ Respuesta:
             "name": "Português (Brasil)"
         },
         {
-            "code": "en-us",
+            "code": "en",
             "name": "English (USA)"
         },
         {
-            "code": "es-es",
+            "code": "es",
             "name": "Español (España)"
         },
         {
-            "code": "fr-fr",
+            "code": "fr",
             "name": "Français (France)"
         },
         {
-            "code": "de-de",
+            "code": "de",
             "name": "Deutsch (Deutschland)"
         }
     ],
-    "default_lang": "en-us"
+    "default_lang": "en"
 }
 ```
 
@@ -190,3 +198,109 @@ npm test
 
 ## Licencia
 MIT
+
+---
+
+## Ejemplos de uso con diferentes frameworks
+
+### Node.js (axios)
+```js
+const axios = require('axios');
+
+// Ejemplo de filtro simple
+axios.get('http://localhost:3000/filter', {
+  params: {
+    text: 'palabra mala aquí',
+    lang: 'es',
+    fill_char: '#'
+  }
+}).then(res => console.log(res.data));
+
+// Ejemplo con palabras seguras y estadísticas
+axios.post('http://localhost:3000/filter', {
+  text: 'banana y naranja son frutas',
+  extras: ['banana', 'naranja'],
+  safe_words: ['banana'],
+  include_stats: true
+}).then(res => console.log(res.data));
+```
+
+### Python (requests)
+```python
+import requests
+
+# Filtro simple
+resp = requests.get('http://localhost:3000/filter', params={
+    'text': 'palabra mala aquí',
+    'lang': 'es',
+    'fill_char': '#'
+})
+print(resp.json())
+
+# Con palabras seguras y estadísticas
+resp = requests.post('http://localhost:3000/filter', json={
+    'text': 'banana y naranja son frutas',
+    'extras': ['banana', 'naranja'],
+    'safe_words': ['banana'],
+    'include_stats': True
+})
+print(resp.json())
+```
+
+### cURL
+```bash
+curl "http://localhost:3000/filter?text=palabra%20mala%20aquí&lang=es&fill_char=#"
+
+curl -X POST http://localhost:3000/filter \
+  -H "Content-Type: application/json" \
+  -d '{"text": "banana y naranja son frutas", "extras": ["banana", "naranja"], "safe_words": ["banana"], "include_stats": true}'
+```
+
+## Ejemplo detallado de respuesta
+
+### Con palabras seguras y estadísticas
+```json
+{
+  "results": {
+    "original_text": "banana y naranja son frutas",
+    "filtered_text": "banana y ###### son frutas",
+    "isFiltered": true,
+    "words_found": ["naranja"],
+    "stats": {
+      "total_words": 5,
+      "total_characters": 27,
+      "filtered_words": 1,
+      "filtered_characters": 6,
+      "filter_ratio": 0.222,
+      "words_ratio": 0.2,
+      "safe_words_used": 1
+    }
+  },
+  "lang": "es",
+  "fill_char": "*",
+  "fill_word": null,
+  "extra_words": ["banana", "naranja"],
+  "safe_words": ["banana"],
+  "aggregate_stats": {
+    "total_words": 5,
+    "total_characters": 27,
+    "filtered_words": 1,
+    "filtered_characters": 6,
+    "safe_words_used": 1,
+    "average_filter_ratio": 0.222,
+    "average_words_ratio": 0.2
+  }
+}
+```
+
+## Cómo contribuir con nuevos idiomas
+
+1. Crea un nuevo archivo en `src/lang/` con el código del idioma, por ejemplo, `xx.js`.
+2. Exporta un objeto con las siguientes propiedades:
+   - `name`: Nombre del idioma
+   - `profanityList`: Array de palabras prohibidas
+   - `messages`: Mensajes de error y advertencia (ver ejemplos en archivos existentes)
+3. Sigue el patrón de los archivos existentes (ej: `pt-br.js`, `en.js`).
+4. ¡Haz un PR o envía tu sugerencia!
+
+---

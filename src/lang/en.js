@@ -1,4 +1,5 @@
 module.exports = {
+    name: 'English (USA)',
     profanityList: [
         "arse",
         "arsehole",
@@ -212,6 +213,10 @@ module.exports = {
     messages: {
         required: "Parameter or field 'text' is required.",
         string: "The value of 'text' must be a string.",
-        warning: (reqLang, defLang) => `Requested language '${reqLang}' is not available. Default language '${defLang}' was used.`
+        warning: (reqLang, defLang) => `Requested language '${reqLang}' is not available. Default language '${defLang}' was used.`,
+        input_required: "Input text must be a non-empty string",
+        input_too_long: "Input text exceeds maximum length of {max} characters.",
+        fill_char_invalid: "Fill character must be a single character",
+        fill_word_profane: "Fill word must not be a profane word"
     }
 };
